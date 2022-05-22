@@ -76,9 +76,6 @@ const getOneUser = async (req, res) => {
     where: {
       id: parseInt(id),
     },
-    select: {
-      id: true,
-    },
   });
 
   if (!user) {
@@ -87,11 +84,11 @@ const getOneUser = async (req, res) => {
     });
   }
 
-  if (user.id !== req.user.id && req.user.isAdmin === false) {
-    return res.status(403).json({
-      message: "Interdit",
-    });
-  }
+  // if (user.id !== req.user.id && req.user.isAdmin === false) {
+  //   return res.status(403).json({
+  //     message: "Interdit",
+  //   });
+  // }
 
   const result = await prisma.user.findUnique({
     where: {
@@ -102,6 +99,8 @@ const getOneUser = async (req, res) => {
       name: true,
       surname: true,
       email: true,
+      bio: true,
+      picture: true,
     },
   });
 
