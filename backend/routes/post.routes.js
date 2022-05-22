@@ -6,7 +6,7 @@ const auth = require("../middleware/auth");
 
 // Routes gestion des Posts
 
-router.get("/", auth, postController.getPosts);
+router.get("/", postController.getPosts);
 router.get("/:id", auth, postController.getOnePost);
 router.put("/:id", auth, postController.updatePost);
 router.post("/", postController.createPost);

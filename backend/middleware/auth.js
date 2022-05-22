@@ -1,26 +1,23 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = async (req, res, next) => {
+// declaration de dotenv pour la recuperation des donnees 'token' du fichier .env
+require("dotenv").config({ path: "./config/.env" });
+
+module.exports = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+    const decodedToken = jwt.verify(token, process.env.TOKEN);
     const userId = decodedToken.userId;
 
-    if (!decodedToken) {
-      throw new Error("Invalid token");
+    if (req.body.userId && req.body.userId !== userId) {
+      throw "Utilisateur non autorisé";
+    } else {
+      req.auth = { userId };
+      next();
     }
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+  } catch {
+    res.status(401).json({
+      error: new Error("Requête invalide !"),
     });
-    if (!user) {
-      throw new Error("user not found");
-    }
-    req.user = user;
-    req.userId = userId;
-    next();
-  } catch (err) {
-    console.error(err.message);
-    res.status(405).json({ message: "Unauthorized request!" });
-    console.log("=> Unauthorized request !");
   }
 };

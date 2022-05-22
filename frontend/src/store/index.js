@@ -6,6 +6,9 @@ const axios = require("axios");
 const instance = axios.create({
   baseURL: "http://localhost:8000/api/user",
 });
+const instancePost = axios.create({
+  baseURL: "http://localhost:8000/api/post",
+});
 
 let user = localStorage.getItem("user");
 if (!user) {
@@ -41,6 +44,15 @@ export default new Vuex.Store({
       bio: "",
       picture: "",
     },
+    postInfos: {
+      title: "",
+      content: "",
+      createdAt: "",
+      author: {
+        surname: "",
+        name: "",
+      },
+    },
   },
   getters: {},
   mutations: {
@@ -54,6 +66,16 @@ export default new Vuex.Store({
     },
     userInfos: function (state, userInfos) {
       state.userInfos = userInfos;
+    },
+    postInfos: function (state, postInfos) {
+      state.postInfos = postInfos;
+    },
+    logout: function (state) {
+      state.user = {
+        userId: -1,
+        token: "",
+      };
+      localStorage.removeItem("user");
     },
   },
   actions: {
@@ -93,9 +115,17 @@ export default new Vuex.Store({
     },
     getUserInfos: ({ commit }) => {
       instance
-        .get(`${user.userId}`)
+        .get(`/${user.userId}`)
         .then(function (response) {
           commit("userInfos", response.data);
+        })
+        .catch(function () {});
+    },
+    getPosts: ({ commit }) => {
+      instancePost
+        .get("/")
+        .then(function (response) {
+          commit("postInfos", response.data);
         })
         .catch(function () {});
     },

@@ -35,6 +35,13 @@ img {
   border-radius: 16px;
   padding: 32px;
 }
+.homecard {
+  max-width: 100%;
+  width: 800px;
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+}
 .card__title {
   text-align: center;
   font-weight: 800;

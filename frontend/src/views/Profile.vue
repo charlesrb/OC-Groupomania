@@ -27,9 +27,10 @@
   </div>
 </template>
 <script>
+/* eslint-disable */
 import { mapState } from "vuex";
 export default {
-  name: "Profile-perso",
+  name: "Profile",
   mounted: function () {
     if (this.$store.state.user.userId == -1) {
       this.$router.push("/");
@@ -37,16 +38,16 @@ export default {
     }
     this.$store.dispatch("getUserInfos");
   },
+  computed: {
+    ...mapState({
+      user: "userInfos",
+    }),
+  },
   methods: {
     logout: function () {
       this.$store.commit("logout");
       this.$router.push("/");
     },
-  },
-  computed: {
-    ...mapState({
-      user: "userInfos",
-    }),
   },
 };
 </script>
