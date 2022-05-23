@@ -33,10 +33,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     status: "",
-    user: {
-      userId: -1,
-      token: "",
-    },
+    user: user,
     userInfos: {
       name: "",
       surname: "",

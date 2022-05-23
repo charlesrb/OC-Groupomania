@@ -2,7 +2,7 @@
   <div class="card">
     <h1 class="card__title">Profil</h1>
     <p class="card__subtitle">Voilà qui je suis</p>
-
+    <img :src="user.picture" /><br />
     <h2>Prénom :</h2>
     <p>{{ user.surname }}</p>
     <h2>Nom :</h2>
@@ -12,14 +12,20 @@
     <h2>Biographie :</h2>
     <p>{{ user.bio }}</p>
     <br />
-    <img :src="user.picture" /><br />
+    <h2>Mettre à jour ma photo de profil :</h2>
+    <div class="form-row">
+      <input class="form-row__input" type="file" @change="onFileSelected" />
+    </div>
+    <div class="form-row">
+      <button @click="onUpload()" class="button">Modifier ma photo</button>
+    </div>
+    <br />
+
     <div class="form-row">
       <button @click="logout()" class="button">Déconnexion</button>
     </div>
     <br />
-    <div class="form-row">
-      <button @click="logout()" class="button">Modifier mon profil</button>
-    </div>
+
     <br />
     <div class="form-row">
       <button @click="logout()" class="button">Supprimer mon compte</button>
@@ -28,9 +34,11 @@
 </template>
 <script>
 /* eslint-disable */
+import axios from "axios";
 import { mapState } from "vuex";
 export default {
   name: "Profile",
+
   mounted: function () {
     if (this.$store.state.user.userId == -1) {
       this.$router.push("/");
@@ -47,6 +55,15 @@ export default {
     logout: function () {
       this.$store.commit("logout");
       this.$router.push("/");
+    },
+    onFileSelected(event) {
+      console.log(event);
+      this.picture = event.target.files[0];
+    },
+    onUpload() {
+      const fd = new FormData();
+      fd.append("image", this.selectedFile, this.selectedFile.name);
+      axios.post;
     },
   },
 };

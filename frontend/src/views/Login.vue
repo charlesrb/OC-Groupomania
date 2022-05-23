@@ -43,6 +43,7 @@
         placeholder="Mot de passe"
       />
     </div>
+
     <div class="form-row" v-if="mode == 'login' && status == 'error_login'">
       Adresse mail et/ou mot de passe invalide
     </div>
@@ -87,6 +88,7 @@ export default {
       prenom: "",
       nom: "",
       password: "",
+      picture: "",
     };
   },
   mounted: function () {
@@ -143,6 +145,8 @@ export default {
     },
     createAccount: function () {
       const self = this;
+      console.log(this.picture);
+
       this.$store
         .dispatch("createAccount", {
           email: this.email,
