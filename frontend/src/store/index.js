@@ -50,6 +50,15 @@ export default new Vuex.Store({
         name: "",
       },
     },
+    createPost: {
+      title: "",
+      content: "",
+      createdAt: "",
+      author: {
+        surname: "",
+        name: "",
+      },
+    },
   },
   getters: {},
   mutations: {
@@ -67,6 +76,10 @@ export default new Vuex.Store({
     postInfos: function (state, postInfos) {
       state.postInfos = postInfos;
     },
+    createPost: function (state, createPost) {
+      state.createPost = createPost;
+    },
+
     logout: function (state) {
       state.user = {
         userId: -1,
@@ -106,6 +119,20 @@ export default new Vuex.Store({
           .catch(function (error) {
             commit("setStatus", "error_create");
 
+            reject(error);
+          });
+      });
+    },
+    createPost: ({ commit }, createPost) => {
+      return new Promise((resolve, reject) => {
+        instancePost
+          .post("/", createPost)
+          .then(function (response) {
+            commit("postInfos", response.data);
+
+            resolve(response);
+          })
+          .catch(function (error) {
             reject(error);
           });
       });

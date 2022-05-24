@@ -4,6 +4,9 @@ const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const fs = require("fs");
+const { request } = require("http");
+
 const signup = async (req, res, next) => {
   const { email, name, surname, picture, bio } = req.body;
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -48,6 +51,39 @@ const login = async (req, res, next) => {
     console.log("UserId", user.id, "Connected");
   }
 };
+
+// const updateUser = async (req, res, next) => {
+//   const { id } = req.params;
+//   const user = await prisma.user.findUnique({
+//     where: {
+//       id: parseInt(id),
+//     },
+//     select: {
+//       picture: true,
+//     },
+//   });
+//   console.log(user.picture);
+
+//   const filename = user.picture.split("/upload/")[1];
+//   fs.unlink(`upload/${filename}`, () => {
+//     const picture = `${req.protocol}://${req.get("host")}/upload/${
+//       req.file.filename
+//     }`;
+//   });
+
+//   const result = await prisma.user.update({
+//     where: {
+//       id: parseInt(id),
+//     },
+//     data: {
+//       picture: `${req.protocol}://${req.get("host")}/upload/${
+//         req.file.filename
+//       }`,
+//     },
+//   });
+//   console.log("Modify user Id:", id);
+//   res.json(result);
+// };
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
@@ -114,4 +150,5 @@ module.exports = {
   signup,
   deleteUser,
   getOneUser,
+  // updateUser,
 };

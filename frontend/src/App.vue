@@ -51,6 +51,19 @@ img {
   color: #666;
   font-weight: 500;
 }
+.card__img {
+  width: 20%;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  margin: auto;
+}
+
+.card__detail {
+  display: flex;
+  justify-content: left;
+  align-content: center;
+}
 .button {
   background: #2196f3;
   color: white;
