@@ -1,48 +1,60 @@
 <template>
-  <div class="homecard">
-    <h1 class="card__title">Fil d'actualités</h1>
-    <br />
-    <h3>Publier un nouveau post</h3>
-    <div class="form-row">
-      <input
-        v-model="title"
-        class="form-row__input"
-        type="text"
-        placeholder="Titre du post"
-      />
+  <div>
+    <Nav></Nav>
+    <div class="logo">
+      <img class="logo__img" src="../assets/logo.svg" />
     </div>
-    <div class="form-row">
-      <textarea
-        v-model="content"
-        class="form-row__input--textarea"
-        type="textarea"
-        placeholder="Contenu du post"
-      ></textarea>
-    </div>
-    <div class="form-row">
-      <button @click="createPost()" class="button">Publier</button>
-    </div>
+    <div class="homecard">
+      <h1 class="card__title">Fil d'actualités</h1>
+      <br />
+      <h3>Publier un nouveau post</h3>
+      <div class="form-row">
+        <input
+          v-model="title"
+          class="form-row__input"
+          type="text"
+          placeholder="Titre du post"
+        />
+      </div>
+      <div class="form-row">
+        <textarea
+          v-model="content"
+          class="form-row__input--textarea"
+          type="textarea"
+          placeholder="Contenu du post"
+        ></textarea>
+      </div>
+      <div class="form-row">
+        <button @click="createPost()" class="button">Publier</button>
+      </div>
 
-    <div class="card" v-for="item in post" :key="item.id">
-      <h2>{{ item.title }}</h2>
-      <p>
-        <!-- {{ item.author.surname }} {{ item.author.name }} le {{ item.createdAt }} -->
-      </p>
-      <p>{{ item.content }}</p>
+      <div class="card" v-for="item in post" :key="item.id">
+        <h2>{{ item.title }}</h2>
+        <p>
+          <!-- {{ item.author.surname }} {{ item.author.name }} le
+          {{ item.createdAt }} -->
+        </p>
+        <p>{{ item.content }}</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-
+import Nav from "../components/nav.vue";
 /* eslint-disable */
 export default {
+  components: { Nav },
   name: "Home",
   data: function () {
     return {
       title: "",
       content: "",
+      author: {
+        surname: "",
+        name: "",
+      },
     };
   },
   mounted: function () {
@@ -76,6 +88,15 @@ export default {
 </script>
 
 <style scoped>
+.logo {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 20px;
+}
+.logo__img {
+  width: 500px;
+}
 .form-row {
   display: flex;
   margin: 16px 0px;
