@@ -25,14 +25,14 @@
           :placeholder="user.name"
         />
       </div>
-      <div v-if="mode == 'editing'" class="form-row">
+      <!-- <div v-if="mode == 'editing'" class="form-row">
         <input
           v-model="email"
           class="form-row__input"
           type="text"
           :placeholder="user.email"
         />
-      </div>
+      </div> -->
       <div v-if="mode == 'editing'" class="form-row">
         <input
           v-model="password"

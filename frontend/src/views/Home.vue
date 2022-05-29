@@ -51,10 +51,6 @@ export default {
     return {
       title: "",
       content: "",
-      author: {
-        surname: "",
-        name: "",
-      },
     };
   },
   mounted: function () {
