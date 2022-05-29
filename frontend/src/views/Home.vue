@@ -26,7 +26,7 @@
     <div class="card" v-for="item in post" :key="item.id">
       <h2>{{ item.title }}</h2>
       <p>
-        {{ item.author.surname }} {{ item.author.name }} le {{ item.createdAt }}
+        <!-- {{ item.author.surname }} {{ item.author.name }} le {{ item.createdAt }} -->
       </p>
       <p>{{ item.content }}</p>
     </div>

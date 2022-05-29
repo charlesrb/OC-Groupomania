@@ -1,4 +1,3 @@
-import Vue from "vue";
 import Vuex from "vuex";
 
 const axios = require("axios");
@@ -28,9 +27,7 @@ if (!user) {
   }
 }
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+export default Vuex.createStore({
   state: {
     status: "",
     user: user,
@@ -59,6 +56,15 @@ export default new Vuex.Store({
         name: "",
       },
     },
+    getPosts: {
+      title: "",
+      content: "",
+      createdAt: "",
+      author: {
+        surname: "",
+        name: "",
+      },
+    },
   },
   getters: {},
   mutations: {
@@ -79,7 +85,12 @@ export default new Vuex.Store({
     createPost: function (state, createPost) {
       state.createPost = createPost;
     },
-
+    getPosts: function (state, postInfos) {
+      state.postInfos = postInfos;
+    },
+    modifyAccount: function (state, userInfos) {
+      state.userInfos = userInfos;
+    },
     logout: function (state) {
       state.user = {
         userId: -1,
@@ -119,6 +130,33 @@ export default new Vuex.Store({
           .catch(function (error) {
             commit("setStatus", "error_create");
 
+            reject(error);
+          });
+      });
+    },
+    modifyAccount: ({ commit }, userInfos) => {
+      return new Promise((resolve, reject) => {
+        instance
+          .put(`/${user.userId}`, userInfos)
+          .then(function (response) {
+            commit("userInfos", "");
+
+            resolve(response);
+          })
+          .catch(function (error) {
+            reject(error);
+          });
+      });
+    },
+    deleteUser: ({ commit }) => {
+      return new Promise((resolve, reject) => {
+        instance
+          .delete(`/${user.userId}`)
+          .then(function (response) {
+            commit("userInfos", "");
+            resolve(response);
+          })
+          .catch(function (error) {
             reject(error);
           });
       });

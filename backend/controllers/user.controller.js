@@ -52,59 +52,58 @@ const login = async (req, res, next) => {
   }
 };
 
-// const updateUser = async (req, res, next) => {
-//   const { id } = req.params;
-//   const user = await prisma.user.findUnique({
-//     where: {
-//       id: parseInt(id),
-//     },
-//     select: {
-//       picture: true,
-//     },
-//   });
-//   console.log(user.picture);
+const updateUser = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const data = {
+      surname: req.body.surname,
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword,
+      bio: req.body.bio,
+    };
 
-//   const filename = user.picture.split("/upload/")[1];
-//   fs.unlink(`upload/${filename}`, () => {
-//     const picture = `${req.protocol}://${req.get("host")}/upload/${
-//       req.file.filename
-//     }`;
-//   });
-
-//   const result = await prisma.user.update({
-//     where: {
-//       id: parseInt(id),
-//     },
-//     data: {
-//       picture: `${req.protocol}://${req.get("host")}/upload/${
-//         req.file.filename
-//       }`,
-//     },
-//   });
-//   console.log("Modify user Id:", id);
-//   res.json(result);
-// };
+    const user = await prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data,
+    });
+    res.status(201).json({
+      status: true,
+      message: "Profile updated !",
+      data: user,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
 
 const deleteUser = async (req, res) => {
-  const { id } = req.params;
-  const user = await prisma.user.findUnique({
-    where: {
-      id: parseInt(id),
-    },
-  });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  try {
+    const { id } = req.params;
+    const data = {
+      surname: "Compte",
+      name: "Supprimé",
+      bio: "",
+    };
+    const user = await prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data,
+    });
+    res.status(201).json({
+      status: true,
+      message: "Compte supprimé !",
+      data: user,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ message: error.message });
   }
-  if (user.id !== req.user.id && req.user.isAdmin === false) {
-    return res.status(403).json({ message: "Interdit" });
-  }
-  const result = await prisma.user.delete({
-    where: {
-      id: parseInt(id),
-    },
-  });
-  console.log("Delete user Id:", id);
-  res.json(result);
 };
 
 const getOneUser = async (req, res) => {
@@ -150,5 +149,5 @@ module.exports = {
   signup,
   deleteUser,
   getOneUser,
-  // updateUser,
+  updateUser,
 };
