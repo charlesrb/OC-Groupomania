@@ -81,14 +81,13 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
     const data = {
-      surname: "Compte",
-      name: "Supprimé",
-      bio: "",
+      disabled: req.body.disabled,
     };
+
     const user = await prisma.user.update({
       where: {
         id: Number(id),
@@ -97,7 +96,7 @@ const deleteUser = async (req, res) => {
     });
     res.status(201).json({
       status: true,
-      message: "Compte supprimé !",
+      message: "Profile updated !",
       data: user,
     });
   } catch (error) {
@@ -105,6 +104,29 @@ const deleteUser = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// const deleteUser = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const data = {
+//       disabled: req.body.disabled,
+//     };
+//     const user = await prisma.user.update({
+//       where: {
+//         id: Number(id),
+//       },
+//       data,
+//     });
+//     res.status(201).json({
+//       status: true,
+//       message: "Compte désactivé !",
+//       data: user,
+//     });
+//   } catch (error) {
+//     console.log(error.message);
+//     res.status(400).json({ message: error.message });
+//   }
+// };
 
 const getOneUser = async (req, res) => {
   const { id } = req.params;

@@ -30,7 +30,7 @@ export default {
   margin-left: 20px;
 }
 .router-link-active {
-  color: #2196f3;
+  color: #fd2d01;
   font-weight: 500;
   text-decoration: none;
 }
@@ -40,7 +40,7 @@ a {
   text-decoration: none;
 }
 a:hover {
-  color: #2196f3;
+  color: #fd2d01;
 }
 .navbar {
   height: 50px;

@@ -6,7 +6,7 @@ const multer = require("../middleware/multer");
 // Routes gestion des Users
 router.post("/signup", userController.signup);
 router.post("/login", userController.login);
-router.delete("/:id", userController.deleteUser);
+router.put("/disable/:id", userController.deleteUser);
 router.get("/:id", userController.getOneUser);
 router.put("/:id", userController.updateUser);
 // router.put("/:id", userController.modifyUser);

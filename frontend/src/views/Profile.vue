@@ -13,29 +13,22 @@
       </h2>
       <div class="form-row" v-if="mode == 'editing'">
         <input
-          v-model="prenom"
+          v-model="user.surname"
           class="form-row__input"
           type="text"
           :placeholder="user.surname"
         />
         <input
-          v-model="nom"
+          v-model="user.name"
           class="form-row__input"
           type="text"
           :placeholder="user.name"
         />
       </div>
-      <!-- <div v-if="mode == 'editing'" class="form-row">
-        <input
-          v-model="email"
-          class="form-row__input"
-          type="text"
-          :placeholder="user.email"
-        />
-      </div> -->
+
       <div v-if="mode == 'editing'" class="form-row">
         <input
-          v-model="password"
+          v-model="user.password"
           class="form-row__input"
           type="password"
           placeholder="Mot de passe"
@@ -45,7 +38,7 @@
       <h2 v-if="mode == 'editing'">Biographie :</h2>
       <div v-if="mode == 'editing'" class="form-row">
         <textarea
-          v-model="bio"
+          v-model="user.bio"
           class="form-row__input--textarea"
           type="textarea"
           :placeholder="user.bio"
@@ -75,17 +68,23 @@
           Modifier mon profil
         </button>
       </div>
+
       <div class="form-row" v-if="mode == 'editing'">
         <button @click="modifyAccount()" class="button">
           Modifier mon profil
+        </button>
+      </div>
+      <div class="form-row" v-if="mode == 'editing'">
+        <button @click="SwitchToDisplayingProfile()" class="button">
+          Retour au profil
         </button>
       </div>
       <div class="form-row" v-if="mode == 'display'">
         <button @click="logout()" class="button">Déconnexion</button>
       </div>
       <div class="form-row" v-if="mode == 'display'">
-        <button @click="deleteUser()" class="button">
-          Supprimer mon compte
+        <button @click="disabledUser()" class="button">
+          Désactiver mon compte
         </button>
       </div>
     </div>
@@ -104,30 +103,32 @@ export default {
   name: "Profile",
   components: { Nav },
 
-  data() {
-    return {
-      mode: "display",
-      email: this.$store.state.userInfos.email,
-      prenom: this.$store.state.userInfos.surname,
-      nom: this.$store.state.userInfos.name,
-      bio: this.$store.state.userInfos.bio,
-      password: "",
-      picture: "",
-    };
-  },
-
-  mounted: function () {
+  beforeCreate() {
+    /* on récupère le profil de l'user avant la création de la page */
     if (this.$store.state.user.userId == -1) {
       this.$router.push("/");
       return;
+    } else {
+      instance
+        .get(`/${this.$store.state.user.userId}`)
+        .then((data) => (this.user = data.data))
+        .catch((error) => {
+          error;
+        });
     }
-    this.$store.dispatch("getUserInfos");
   },
-  computed: {
-    ...mapState({
-      user: "userInfos",
-    }),
+  data() {
+    return {
+      mode: "display",
+      user: {},
+    };
   },
+
+  // computed: {
+  //   ...mapState({
+  //     user: "userInfos",
+  //   }),
+  // },
   methods: {
     SwitchToEditingProfile: function () {
       this.mode = "editing";
@@ -139,17 +140,27 @@ export default {
       this.$store.commit("logout");
       this.$router.push("/");
     },
-    deleteUser: function () {
+
+    modifyAccount: function () {
+      instance
+        .put(`/${this.$store.state.user.userId}`, this.user)
+        .then((res) => (this.mode = "display"))
+        .catch((error) => {
+          error;
+        });
+    },
+
+    disabledUser: function () {
       const self = this;
-      this.$store.dispatch("deleteUser").then(
-        function () {
+      instance
+        .put(`/disable/${this.$store.state.user.userId}`, { disabled: true })
+        .then(() => {
           self.$store.commit("logout");
           self.$router.push("/");
-        },
-        function (error) {
-          console.log(error);
-        }
-      );
+        })
+        .catch((error) => {
+          error;
+        });
     },
     // onFileSelected(event) {
     //   console.log(event.target.files[0].name);
@@ -165,28 +176,6 @@ export default {
     //     .then((res) => console.log(res))
     //     .catch(function () {});
     // },
-    modifyAccount: function () {
-      const self = this;
-
-      this.$store
-        .dispatch("modifyAccount", {
-          email: this.email,
-          name: this.nom,
-          surname: this.prenom,
-          password: this.password,
-          picture: "",
-          bio: this.bio,
-        })
-        .then(
-          function () {
-            self.mode = "display";
-            self.$router.push("profile");
-          },
-          function (error) {
-            console.log(error);
-          }
-        );
-    },
 
     // deleteAccount() {
     //   this.$store.dispatch('deleteAccount')

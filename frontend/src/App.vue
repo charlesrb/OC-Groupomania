@@ -16,7 +16,7 @@
   max-width: 100%;
 }
 body {
-  background-image: linear-gradient(62deg, #7e91fb 0%, #a9d4fb 100%);
+  background-image: linear-gradient(120deg, #fd2d01 20%, #ffd7d7 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,7 +64,7 @@ img {
   align-content: center;
 }
 .button {
-  background: #2196f3;
+  background: #fd2d01;
   color: white;
   border-radius: 8px;
   font-weight: 800;
@@ -75,7 +75,7 @@ img {
   transition: 0.4s background-color;
 }
 .card__action {
-  color: #2196f3;
+  color: #fd2d01;
   text-decoration: underline;
 }
 .card__action:hover {
@@ -83,7 +83,7 @@ img {
 }
 .button:hover {
   cursor: pointer;
-  background: #1976d2;
+  background: #fd2d01;
 }
 .button--disabled {
   background: #cecece;
