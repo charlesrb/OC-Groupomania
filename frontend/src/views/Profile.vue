@@ -2,7 +2,7 @@
   <div>
     <Nav></Nav>
     <div class="card">
-      <!-- <div class="card__img"><img :src="user.picture" /><br /></div> -->
+      <div class="card__img"><img :src="user.picture" /><br /></div>
       <h1 v-if="mode == 'display'" class="card__title">Profil</h1>
       <h1 v-if="mode == 'editing'" class="card__title">Modifier mon profil</h1>
 
@@ -54,13 +54,26 @@
       <h2 v-if="mode == 'display'">Biographie :</h2>
       <p v-if="mode == 'display'">{{ user.bio }}</p>
       <br />
-      <!-- <h2>Mettre à jour ma photo de profil :</h2>
-    <div class="form-row">
-      <input class="form-row__input" type="file" @change="onFileSelected" />
-    </div>
-    <div class="form-row">
-      <button @click="onUpload()" class="button">Modifier ma photo</button>
-    </div> -->
+      <h2 v-if="mode == 'editing'">Mettre à jour ma photo de profil :</h2>
+      <div class="profileContainer" v-if="mode == 'editing'">
+        <img
+          id="preview"
+          :src="user.picture"
+          :alt="user.picture"
+          class="profile"
+        />
+      </div>
+      <div class="form-row" v-if="mode == 'editing'">
+        <input
+          class="form-row__input"
+          type="file"
+          ref="picture"
+          name="picture"
+          id="picture"
+          @change="onFileSelected"
+        />
+      </div>
+      <div class="form-row" v-if="mode == 'editing'"></div>
       <br />
 
       <div class="form-row" v-if="mode == 'display'">
@@ -121,6 +134,7 @@ export default {
     return {
       mode: "display",
       user: {},
+      file: "",
     };
   },
 
@@ -135,6 +149,7 @@ export default {
     },
     SwitchToDisplayingProfile: function () {
       this.mode = "display";
+      console.log(this.user.picture);
     },
     logout: function () {
       this.$store.commit("logout");
@@ -142,8 +157,16 @@ export default {
     },
 
     modifyAccount: function () {
+      let formData = new FormData();
+      formData.append("surname", this.user.surname);
+      formData.append("name", this.user.name);
+      formData.append("password", this.user.password);
+      formData.append("bio", this.user.bio);
+      formData.append("password", this.user.password);
+      formData.append("picture", this.user.picture);
+
       instance
-        .put(`/${this.$store.state.user.userId}`, this.user)
+        .put(`/${this.$store.state.user.userId}`, formData)
         .then((res) => (this.mode = "display"))
         .catch((error) => {
           error;
@@ -161,6 +184,20 @@ export default {
         .catch((error) => {
           error;
         });
+    },
+
+    onFileSelected(event) {
+      this.user.picture = this.$refs.picture.files[0];
+      let input = event.target;
+
+      /* pour obtenir une prévisualisation du fichier */
+      if (input.files) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById("preview").src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
     },
     // onFileSelected(event) {
     //   console.log(event.target.files[0].name);
