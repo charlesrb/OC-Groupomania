@@ -10,7 +10,7 @@
       <h3>Publier un nouveau post</h3>
       <div class="form-row">
         <input
-          v-model="title"
+          v-model="post.title"
           class="form-row__input"
           type="text"
           placeholder="Titre du post"
@@ -18,7 +18,7 @@
       </div>
       <div class="form-row">
         <textarea
-          v-model="content"
+          v-model="post.content"
           class="form-row__input--textarea"
           type="textarea"
           placeholder="Contenu du post"
@@ -28,56 +28,60 @@
         <button @click="createPost()" class="button">Publier</button>
       </div>
 
-      <div class="card" v-for="item in post" :key="item.id">
-        <h2>{{ item.title }}</h2>
+      <div class="card" v-for="post in posts" :key="post.id">
+        <h2>{{ post.title }}</h2>
         <p>
-          <!-- {{ item.author.surname }} {{ item.author.name }} le
-          {{ item.createdAt }} -->
+          {{ post.author.surname }} {{ post.author.name }} le
+          {{ post.createdAt }}
         </p>
-        <p>{{ item.content }}</p>
+        <p>{{ post.content }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
 import Nav from "../components/nav.vue";
+import axios from "axios";
+
 /* eslint-disable */
+
+const instancePost = axios.create({
+  baseURL: "http://localhost:8000/api/post",
+});
+
 export default {
   components: { Nav },
   name: "Home",
   data: function () {
     return {
-      title: "",
-      content: "",
+      posts: {},
+      post: {
+        title: "",
+        content: "",
+        authorId: this.$store.state.user.userId,
+      },
     };
   },
-  mounted: function () {
-    this.$store.dispatch("getPosts");
+  beforeCreate() {
+    instancePost
+      .get("/")
+      .then((data) => (this.posts = data.data))
+      .catch((error) => {
+        error;
+      });
   },
-  computed: {
-    ...mapState({
-      post: "postInfos",
-    }),
-  },
+
   methods: {
     createPost: function () {
-      const self = this;
-      this.$store
-        .dispatch("createPost", {
-          title: this.title,
-          content: this.content,
-          authorId: this.$store.state.user.userId,
-        })
-        .then(
-          function () {
-            self.$router.push("home");
-          },
-          function (error) {
-            console.log(error);
-          }
-        );
+      if (this.$store.state.user.userId == -1) {
+        alert("Vous devez être connecté pour publier");
+      } else {
+        instancePost
+          .post("/", this.post)
+          .then(() => location.reload())
+          .catch((error) => error);
+      }
     },
   },
 };
