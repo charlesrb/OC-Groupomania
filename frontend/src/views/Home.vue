@@ -28,13 +28,34 @@
         <button @click="createPost()" class="button">Publier</button>
       </div>
 
-      <div class="card" v-for="post in posts" :key="post.id">
+      <div class="card__post" v-for="post in posts" :key="post.id">
         <h2>{{ post.title }}</h2>
         <p>
           {{ post.author.surname }} {{ post.author.name }} le
           {{ post.createdAt }}
         </p>
         <p>{{ post.content }}</p>
+        <div class="card__post--like">
+          <i class="fa-solid fa-thumbs-up"></i>
+          <i class="fa-solid fa-thumbs-down"></i>
+        </div>
+        <div class="card__post--comments">
+          <div>Photo</div>
+          <div class="form-row">Ceci est un commentaire</div>
+        </div>
+        <div class="form-row">
+          <textarea
+            v-model="comment.content"
+            class="form-row__input--textarea"
+            type="textarea"
+            placeholder="Laisser un commentaire"
+          ></textarea>
+        </div>
+        <div class="sent">
+          <button @click="createComment(post)" class="button__comment">
+            Publier
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -50,16 +71,26 @@ const instancePost = axios.create({
   baseURL: "http://localhost:8000/api/post",
 });
 
+const instanceComment = axios.create({
+  baseURL: "http://localhost:8000/api/post/comment",
+});
+
 export default {
   components: { Nav },
   name: "Home",
   data: function () {
     return {
       posts: {},
+      comments: {},
       post: {
         title: "",
         content: "",
         authorId: this.$store.state.user.userId,
+      },
+      comment: {
+        content: "",
+        authorId: this.$store.state.user.userId,
+        postId: "",
       },
     };
   },
@@ -70,6 +101,11 @@ export default {
       .catch((error) => {
         error;
       });
+
+    instanceComment
+      .get("/")
+      .then((data) => (this.comments = data.data))
+      .catch((error) => error);
   },
 
   methods: {
@@ -82,6 +118,13 @@ export default {
           .then(() => location.reload())
           .catch((error) => error);
       }
+    },
+    createComment: function (post) {
+      this.comment.postId = post.id;
+      instanceComment
+        .post("/", this.comment)
+        .then((res) => location.reload())
+        .catch((error) => error);
     },
   },
 };
@@ -115,6 +158,23 @@ export default {
   color: black;
 }
 
+.sent {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.button__comment {
+  background: #ffd7d7;
+  color: #fd2d01;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 15px;
+  border: none;
+  width: 25%;
+  padding: 16px;
+  transition: 0.4s background-color;
+}
+
 .form-row__input--textarea {
   padding: 8px;
   border: none;
@@ -133,5 +193,28 @@ export default {
 }
 .form-row__input--textarea::placeholder {
   color: #aaaaaa;
+}
+
+.card__post {
+  max-width: 100%;
+
+  background: white;
+  border-radius: 16px;
+  box-shadow: 3px 3px 10px 2px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  padding: 32px;
+}
+
+.card__post--like {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: flex-end;
+}
+
+.card__post--comments {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 </style>

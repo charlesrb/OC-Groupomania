@@ -5,6 +5,8 @@ const auth = require("../middleware/auth");
 
 // Routes gestion des Posts
 
-router.post("/", auth, commentController.createComment);
+router.get("/", commentController.getComments);
+
+router.post("/", commentController.createComment);
 
 module.exports = router;
