@@ -52,41 +52,6 @@ const login = async (req, res, next) => {
   }
 };
 
-// const updateUser = async (req, res, next) => {
-//   try {
-//     const id = req.params.id;
-//     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-//     const data = {
-//       surname: req.body.surname,
-//       name: req.body.name,
-//       email: req.body.email,
-//       password: hashedPassword,
-//       bio: req.body.bio,
-//     };
-
-//     if (req.file) {
-//       picture = `${req.protocol}://${req.get("host")}/images/${
-//         req.file.filename
-//       }`;
-//     }
-//     const { password, ...user } = await prisma.user.update({
-//       where: {
-//         id: parseInt(id),
-//       },
-//       data,
-//     });
-//     res.status(201).json({
-//       status: true,
-//       message: "Profile updated !",
-//       data: user,
-//     });
-//   } catch (error) {
-//     console.log(error.message);
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-
 const updateUser = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -146,29 +111,6 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-// const deleteUser = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const data = {
-//       disabled: req.body.disabled,
-//     };
-//     const user = await prisma.user.update({
-//       where: {
-//         id: Number(id),
-//       },
-//       data,
-//     });
-//     res.status(201).json({
-//       status: true,
-//       message: "Compte désactivé !",
-//       data: user,
-//     });
-//   } catch (error) {
-//     console.log(error.message);
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-
 const getOneUser = async (req, res) => {
   const { id } = req.params;
   const user = await prisma.user.findUnique({
@@ -206,6 +148,36 @@ const getOneUser = async (req, res) => {
   res.json(result);
 };
 
+const getUsers = async (req, res) => {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      surname: true,
+      createdAt: true,
+      isAdmin: true,
+      picture: true,
+      bio: true,
+      posts: {
+        select: {
+          id: true,
+          title: true,
+          content: true,
+        },
+      },
+      comments: {
+        select: {
+          id: true,
+          content: true,
+        },
+      },
+    },
+  });
+
+  res.json(users);
+};
+
 // export all controllers
 module.exports = {
   login,
@@ -213,4 +185,5 @@ module.exports = {
   deleteUser,
   getOneUser,
   updateUser,
+  getUsers,
 };

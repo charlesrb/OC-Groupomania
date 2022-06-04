@@ -4,6 +4,7 @@
     <ul class="navbar__list">
       <li><router-link to="/home">Fil d'actualité</router-link></li>
       <li><router-link to="/profile">Profil</router-link></li>
+      <li><router-link to="/membres">Membres</router-link></li>
       <li>
         <router-link to="to" @click="logout()">Se déconnecter</router-link>
       </li>
