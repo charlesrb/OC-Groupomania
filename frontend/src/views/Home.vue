@@ -16,6 +16,7 @@
           placeholder="Titre du post"
         />
       </div>
+
       <div class="form-row">
         <textarea
           v-model="post.content"
@@ -23,6 +24,24 @@
           type="textarea"
           placeholder="Contenu du post"
         ></textarea>
+      </div>
+      <div class="form-row">
+        <input
+          class="form-row__input"
+          type="file"
+          ref="picture"
+          name="picture"
+          id="picture"
+          @change="onFileSelected"
+        />
+      </div>
+      <div class="form-row">
+        <img
+          id="preview"
+          :src="post.picture"
+          :alt="post.picture"
+          class="profile"
+        />
       </div>
       <div class="form-row">
         <button @click="createPost()" class="button">Publier</button>
@@ -41,8 +60,13 @@
         </div>
 
         <p>{{ post.content }}</p>
+        <img class="post__img" :src="post.picture" v-if="post.picture" />
         <div class="card__post--like">
-          <span @click="createLike(post)"
+          <span
+            @click="
+              createLike(post)
+              // getLike(post);
+            "
             ><i class="fa-solid fa-thumbs-up emoji"></i
             >{{ post.likes.length }}</span
           >
@@ -110,7 +134,9 @@ export default {
         title: "",
         content: "",
         authorId: this.$store.state.user.userId,
+        picture: "",
       },
+      file: "",
       comment: {
         content: "",
         authorId: this.$store.state.user.userId,
@@ -120,6 +146,7 @@ export default {
         postId: "",
         authorId: this.$store.state.user.userId,
       },
+      // totalLike: "",
     };
   },
   beforeCreate() {
@@ -143,8 +170,14 @@ export default {
       if (this.$store.state.user.userId == -1) {
         alert("Vous devez être connecté pour publier");
       } else {
+        let formData = new FormData();
+        formData.append("title", this.post.title);
+        formData.append("content", this.post.content);
+        formData.append("picture", this.post.picture);
+        formData.append("authorId", this.post.authorId);
+
         instancePost
-          .post("/", this.post)
+          .post("/", formData)
           .then(() => location.reload())
           .catch((error) => error);
       }
@@ -163,6 +196,27 @@ export default {
         .post("/", this.like)
         .then((res) => location.reload())
         .catch((error) => error);
+    },
+
+    // getLike: function (post) {
+    //   this.like.postId = post.id;
+    //   instanceLike
+    //     .get("/", this.like)
+    //     .then((res) => (this.totalLike = res.data.length))
+    //     .catch((error) => error);
+    // },
+
+    onFileSelected(event) {
+      this.post.picture = this.$refs.picture.files[0];
+      let input = event.target;
+
+      if (input.files) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById("preview").src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
     },
   },
 };
@@ -190,7 +244,12 @@ export default {
   border-radius: 30px;
   margin-right: 10px;
 }
-
+.post__img {
+  margin-top: 20px;
+  height: 300px;
+  width: 100%;
+  object-fit: cover;
+}
 .card__post--title {
   display: flex;
   flex-direction: column;

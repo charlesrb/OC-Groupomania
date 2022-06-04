@@ -106,7 +106,6 @@
 <script>
 /* eslint-disable */
 import axios from "axios";
-import { mapState } from "vuex";
 import Nav from "../components/nav.vue";
 const instance = axios.create({
   baseURL: "http://localhost:8000/api/user",
@@ -138,18 +137,12 @@ export default {
     };
   },
 
-  // computed: {
-  //   ...mapState({
-  //     user: "userInfos",
-  //   }),
-  // },
   methods: {
     SwitchToEditingProfile: function () {
       this.mode = "editing";
     },
     SwitchToDisplayingProfile: function () {
       this.mode = "display";
-      console.log(this.user.picture);
     },
     logout: function () {
       this.$store.commit("logout");
@@ -206,6 +199,13 @@ export default {
 .card__detail {
   font-size: 18px;
   font-weight: 400;
+}
+
+.card__img img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50px;
 }
 .form-row {
   display: flex;

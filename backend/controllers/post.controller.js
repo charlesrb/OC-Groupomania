@@ -8,6 +8,7 @@ const getPosts = async (req, res) => {
       title: true,
       content: true,
       createdAt: true,
+      picture: true,
       author: {
         select: {
           id: true,
@@ -58,13 +59,22 @@ const getOnePost = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-  const { title, content, authorId } = req.body;
+  // const { title, content, authorId } = req.body;
+  const data = {
+    title: req.body.title,
+    content: req.body.content,
+    authorId: parseInt(req.body.authorId),
+  };
+  if (req.file) {
+    data.picture = `${req.protocol}://${req.get("host")}/images/${
+      req.file.filename
+    }`;
+  } else {
+    data.picture = "";
+  }
+  console.log(data);
   const result = await prisma.post.create({
-    data: {
-      title,
-      content,
-      authorId,
-    },
+    data,
   });
 
   res.json(result);
