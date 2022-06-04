@@ -16,6 +16,13 @@ const getPosts = async (req, res) => {
           picture: true,
         },
       },
+      likes: {
+        select: {
+          id: true,
+          authorId: true,
+          postId: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

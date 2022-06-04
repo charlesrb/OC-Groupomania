@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/comment", commentRoutes);
-app.use("/api/post/like", likeRoutes);
+app.use("/api/like", likeRoutes);
 app.use("/images", express.static(__dirname + "/images"));
 app.listen(process.env.PORT, () => {
   console.log(`listening on port ${process.env.PORT}`);

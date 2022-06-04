@@ -42,8 +42,10 @@
 
         <p>{{ post.content }}</p>
         <div class="card__post--like">
-          <i class="fa-solid fa-thumbs-up"></i>
-          <i class="fa-solid fa-thumbs-down"></i>
+          <span @click="createLike(post)"
+            ><i class="fa-solid fa-thumbs-up emoji"></i
+            >{{ post.likes.length }}</span
+          >
         </div>
         <br />
         <div class="comments">
@@ -93,6 +95,10 @@ const instanceComment = axios.create({
   baseURL: "http://localhost:8000/api/comment",
 });
 
+const instanceLike = axios.create({
+  baseURL: "http://localhost:8000/api/like",
+});
+
 export default {
   components: { Nav },
   name: "Home",
@@ -109,6 +115,10 @@ export default {
         content: "",
         authorId: this.$store.state.user.userId,
         postId: "",
+      },
+      like: {
+        postId: "",
+        authorId: this.$store.state.user.userId,
       },
     };
   },
@@ -143,6 +153,14 @@ export default {
       this.comment.postId = post.id;
       instanceComment
         .post("/", this.comment)
+        .then((res) => location.reload())
+        .catch((error) => error);
+    },
+
+    createLike: function (post) {
+      this.like.postId = post.id;
+      instanceLike
+        .post("/", this.like)
         .then((res) => location.reload())
         .catch((error) => error);
     },
@@ -182,7 +200,10 @@ export default {
   margin-top: 10px;
   padding-top: 10px;
 }
-
+.emoji {
+  margin-right: 5px;
+  color: #fd2d01;
+}
 .comment--content {
   display: flex;
   flex-direction: column;
@@ -266,6 +287,10 @@ export default {
   flex-direction: row;
   gap: 20px;
   justify-content: flex-end;
+}
+
+.card__post--like span:hover {
+  cursor: pointer;
 }
 
 .card__post--comments {
