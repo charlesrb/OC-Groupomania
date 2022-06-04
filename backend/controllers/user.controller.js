@@ -18,7 +18,7 @@ const signup = async (req, res, next) => {
         password: hashedPassword,
         name,
         surname,
-        picture,
+        picture: "http://localhost:8000/images/profil1653923427955.jpg",
         bio,
       },
     });
@@ -65,9 +65,14 @@ const login = async (req, res, next) => {
 //       bio: req.body.bio,
 //     };
 
-//     const user = await prisma.user.update({
+//     if (req.file) {
+//       picture = `${req.protocol}://${req.get("host")}/images/${
+//         req.file.filename
+//       }`;
+//     }
+//     const { password, ...user } = await prisma.user.update({
 //       where: {
-//         id: Number(id),
+//         id: parseInt(id),
 //       },
 //       data,
 //     });
@@ -85,15 +90,24 @@ const login = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const data = { bio: req.body.bio };
+    const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10);
+    const data = {
+      surname: req.body.surname,
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword,
+      bio: req.body.bio,
+    };
+
     if (req.file) {
       data.picture = `${req.protocol}://${req.get("host")}/images/${
         req.file.filename
       }`;
     }
+    console.log(data);
     const user = await prisma.user.update({
       where: {
-        id: parseInt(id),
+        id: Number(id),
       },
       data,
     });
@@ -107,41 +121,6 @@ const updateUser = async (req, res, next) => {
     res.status(400).json({ message: error.message });
   }
 };
-
-// const updateUser = async (req, res, next) => {
-//   try {
-//     const id = req.params.id;
-//     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-//     const data = {
-//       surname: req.body.surname,
-//       name: req.body.name,
-//       email: req.body.email,
-//       password: hashedPassword,
-//       bio: req.body.bio,
-//       picture: "",
-//     };
-
-//     if (req.file) {
-//       data.picture = `${req.protocol}://${req.get("host")}/images/${
-//         req.file.filename
-//       }`;
-//     }
-//     const user = await prisma.user.update({
-//       where: {
-//         id: Number(id),
-//       },
-//       data,
-//     });
-//     res.status(201).json({
-//       status: true,
-//       message: "Profile updated !",
-//       data: user,
-//     });
-//   } catch (error) {
-//     console.log(error.message);
-//     res.status(400).json({ message: error.message });
-//   }
-// };
 
 const deleteUser = async (req, res, next) => {
   try {

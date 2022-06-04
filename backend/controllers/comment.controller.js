@@ -24,32 +24,28 @@ const createComment = async (req, res, next) => {
   }
 };
 
-// NE FONCTIONNE PAS
 const getComments = async (req, res, next) => {
   try {
-    const { postId } = req.params;
-
     const commentaires = await prisma.comment.findMany({
-      where: {
-        postId: Number(postId),
-      },
-
       select: {
         id: true,
         content: true,
         createdAt: true,
         postId: true,
-        authorId: true,
+        author: {
+          select: {
+            id: true,
+            surname: true,
+            name: true,
+            picture: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: "asc",
       },
     });
-    res.status(200).json({
-      status: true,
-      message: "Commentaires récupérés !",
-      data: commentaires,
-    });
+    res.status(200).json(commentaires);
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ message: error.message });

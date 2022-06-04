@@ -190,7 +190,6 @@ export default {
       this.user.picture = this.$refs.picture.files[0];
       let input = event.target;
 
-      /* pour obtenir une prévisualisation du fichier */
       if (input.files) {
         let reader = new FileReader();
         reader.onload = (e) => {
@@ -199,24 +198,6 @@ export default {
         reader.readAsDataURL(input.files[0]);
       }
     },
-    // onFileSelected(event) {
-    //   console.log(event.target.files[0].name);
-    //   this.picture = event.target.files[0];
-    //   console.log(this.picture);
-    // },
-    // onUpload() {
-    //   const fd = new FormData();
-    //   fd.append("image", this.picture, this.picture.name);
-
-    //   instance
-    //     .put(`/${this.$store.state.user.userId}`)
-    //     .then((res) => console.log(res))
-    //     .catch(function () {});
-    // },
-
-    // deleteAccount() {
-    //   this.$store.dispatch('deleteAccount')
-    // }
   },
 };
 </script>

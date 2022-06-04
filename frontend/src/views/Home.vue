@@ -29,23 +29,41 @@
       </div>
 
       <div class="card__post" v-for="post in posts" :key="post.id">
-        <h2>{{ post.title }}</h2>
-        <p>
-          {{ post.author.surname }} {{ post.author.name }} le
-          {{ post.createdAt }}
-        </p>
+        <div class="card__post--img">
+          <img :src="post.author.picture" />
+          <div class="card__post--title">
+            <h2>{{ post.title }}</h2>
+            <p>
+              {{ post.author.surname }} {{ post.author.name }} le
+              {{ post.createdAt }}
+            </p>
+          </div>
+        </div>
+
         <p>{{ post.content }}</p>
         <div class="card__post--like">
           <i class="fa-solid fa-thumbs-up"></i>
           <i class="fa-solid fa-thumbs-down"></i>
         </div>
-        <div class="card__post--comments">
-          <div>Photo</div>
-          <div class="form-row">Ceci est un commentaire</div>
+        <br />
+        <div class="comments">
+          <h4>Commentaires</h4>
+          <div v-for="comment in comments" :key="comment.id">
+            <div class="card__post--comments" v-if="post.id == comment.postId">
+              <div class="comment--img">
+                <img :src="comment.author.picture" />
+              </div>
+              <div class="comment--content">
+                <h5>{{ comment.author.surname }} {{ comment.author.name }}</h5>
+                <p>{{ comment.content }}</p>
+                <p>{{ comment.createdAt }}</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-row">
           <textarea
-            v-model="comment.content"
+            v-model.lazy="comment.content"
             class="form-row__input--textarea"
             type="textarea"
             placeholder="Laisser un commentaire"
@@ -72,7 +90,7 @@ const instancePost = axios.create({
 });
 
 const instanceComment = axios.create({
-  baseURL: "http://localhost:8000/api/post/comment",
+  baseURL: "http://localhost:8000/api/comment",
 });
 
 export default {
@@ -97,7 +115,9 @@ export default {
   beforeCreate() {
     instancePost
       .get("/")
-      .then((data) => (this.posts = data.data))
+      .then((data) => {
+        this.posts = data.data;
+      })
       .catch((error) => {
         error;
       });
@@ -139,6 +159,42 @@ export default {
 }
 .logo__img {
   width: 500px;
+}
+.card__post--img {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.card__post--img img {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  margin-right: 10px;
+}
+
+.card__post--title {
+  display: flex;
+  flex-direction: column;
+}
+.comments {
+  border-top: 1px solid gray;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.comment--content {
+  display: flex;
+  flex-direction: column;
+  background-color: #f2f2f2;
+  width: 100%;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.comment--img img {
+  width: 40px;
+  border-radius: 20px;
 }
 .form-row {
   display: flex;
@@ -216,5 +272,9 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 </style>
