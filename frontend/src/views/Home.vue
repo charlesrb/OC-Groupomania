@@ -69,12 +69,11 @@
         <p>{{ post.content }}</p>
         <img class="post__img" :src="post.picture" v-if="post.picture" />
         <div class="card__post--like">
-          <span
-            @click="
-              createLike(post)
-              // getLike(post);
-            "
-            ><i class="fa-solid fa-thumbs-up emoji"></i
+          <span @click="createLike(post)"
+            ><i
+              class="fa-solid fa-thumbs-up emoji"
+              :class="{ 'emoji--disabled': !isLiked(post) }"
+            ></i
             >{{ post.likes.length }}</span
           >
         </div>
@@ -182,7 +181,7 @@ export default {
         .catch((error) => error);
     }
   },
-
+  computed: {},
   methods: {
     createPost: function () {
       if (this.$store.state.isLogged == false) {
@@ -198,6 +197,20 @@ export default {
           .post("/", formData, config)
           .then(() => location.reload())
           .catch((error) => error);
+      }
+    },
+    isLiked: function (post) {
+      const postLikedAuthor = post.likes.filter(
+        (like) => like.authorId == localStorage.getItem("userId")
+      );
+      if (postLikedAuthor.length == 0) {
+        console.log("pas liké !");
+
+        return false;
+      } else {
+        console.log("liké !");
+
+        return true;
       }
     },
     createComment: function (post) {
@@ -252,7 +265,6 @@ export default {
       return `${newDateMonth} à ${newDateHour}`;
     },
   },
-  computed: {},
 };
 </script>
 
@@ -308,6 +320,9 @@ export default {
 .emoji {
   margin-right: 5px;
   color: #fd2d01;
+}
+.emoji--disabled {
+  color: gray;
 }
 .comment--content {
   display: flex;
