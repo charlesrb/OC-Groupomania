@@ -54,7 +54,7 @@
             <h2>{{ post.title }}</h2>
             <p>
               {{ post.author.surname }} {{ post.author.name }} le
-              {{ post.createdAt }}
+              {{ formatDate(post) }}
             </p>
           </div>
         </div>
@@ -81,8 +81,8 @@
               </div>
               <div class="comment--content">
                 <h5>{{ comment.author.surname }} {{ comment.author.name }}</h5>
+                <p>Le {{ formatDate(comment) }}</p>
                 <p>{{ comment.content }}</p>
-                <p>{{ comment.createdAt }}</p>
               </div>
             </div>
           </div>
@@ -218,7 +218,18 @@ export default {
         reader.readAsDataURL(input.files[0]);
       }
     },
+    formatDate: function (date) {
+      const options = { hour: "numeric", minute: "numeric" };
+      const newDateMonth = new Date(date.createdAt).toLocaleDateString();
+      const newDateHour = new Date(date.createdAt).toLocaleTimeString(
+        "fr-FR",
+        options
+      );
+
+      return `${newDateMonth} à ${newDateHour}`;
+    },
   },
+  computed: {},
 };
 </script>
 

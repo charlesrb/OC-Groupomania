@@ -10,7 +10,7 @@
             <h2>{{ user.surname }} {{ user.name }}</h2>
             <p>
               Créé le
-              {{ user.createdAt }}
+              {{ formatDate(user) }}
             </p>
             <p>{{ user.bio }}</p>
             <p>{{ user.posts.length }} posts</p>
@@ -45,6 +45,18 @@ export default {
       .catch((error) => {
         error;
       });
+  },
+  methods: {
+    formatDate: function (user) {
+      const options = { hour: "numeric", minute: "numeric" };
+      const newDateMonth = new Date(user.createdAt).toLocaleDateString();
+      const newDateHour = new Date(user.createdAt).toLocaleTimeString(
+        "fr-FR",
+        options
+      );
+
+      return `${newDateMonth} à ${newDateHour}`;
+    },
   },
 };
 </script>
