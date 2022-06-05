@@ -13,13 +13,17 @@
 </template>
 
 <script>
+import store from "@/store";
+
 export default {
   /* eslint-disable */
   name: "Nav",
   methods: {
-    logout: function () {
-      this.$store.commit("logout");
+    logout() {
+      store.state.isLogged = false;
       this.$router.push("/");
+      localStorage.clear();
+      console.log("user déconnecté");
     },
   },
 };

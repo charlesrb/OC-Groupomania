@@ -1,76 +1,77 @@
 <template>
-  <div class="card">
-    <h1 class="card__title" v-if="mode == 'login'">Connexion</h1>
-    <h1 class="card__title" v-else>Inscription</h1>
+  <div>
+    <div class="logo">
+      <img class="logo__img" src="../assets/logo.svg" />
+    </div>
+    <div class="card">
+      <h1 class="card__title" v-if="mode == 'login'">Connexion</h1>
+      <h1 class="card__title" v-else>Inscription</h1>
 
-    <p class="card__subtitle" v-if="mode == 'login'">
-      Tu n'as pas encore de compte ?
-      <span class="card__action" @click="SwitchToCreateAccount()"
-        >Créer un compte</span
-      >
-    </p>
-    <p class="card__subtitle" v-else>
-      Tu as déjà un compte ?
-      <span class="card__action" @click="SwitchToLogin()">Se connecter</span>
-    </p>
-    <div class="form-row">
-      <input
-        v-model="email"
-        class="form-row__input"
-        type="text"
-        placeholder="Adresse mail"
-      />
-    </div>
-    <div class="form-row" v-if="mode == 'create'">
-      <input
-        v-model="prenom"
-        class="form-row__input"
-        type="text"
-        placeholder="Prénom"
-      />
-      <input
-        v-model="nom"
-        class="form-row__input"
-        type="text"
-        placeholder="Nom"
-      />
-    </div>
-    <div class="form-row">
-      <input
-        v-model="password"
-        class="form-row__input"
-        type="password"
-        placeholder="Mot de passe"
-      />
-    </div>
+      <p class="card__subtitle" v-if="mode == 'login'">
+        Tu n'as pas encore de compte ?
+        <span class="card__action" @click="SwitchToCreateAccount()"
+          >Créer un compte</span
+        >
+      </p>
+      <p class="card__subtitle" v-else>
+        Tu as déjà un compte ?
+        <span class="card__action" @click="SwitchToLogin()">Se connecter</span>
+      </p>
+      <div class="form-row">
+        <input
+          v-model="user.email"
+          class="form-row__input"
+          type="text"
+          placeholder="Adresse mail"
+        />
+      </div>
+      <div class="form-row" v-if="mode == 'create'">
+        <input
+          v-model="user.surname"
+          class="form-row__input"
+          type="text"
+          placeholder="Prénom"
+        />
+        <input
+          v-model="user.name"
+          class="form-row__input"
+          type="text"
+          placeholder="Nom"
+        />
+      </div>
+      <div class="form-row">
+        <input
+          v-model="user.password"
+          class="form-row__input"
+          type="password"
+          placeholder="Mot de passe"
+        />
+      </div>
 
-    <div class="form-row" v-if="mode == 'login' && status == 'error_login'">
+      <!-- <div class="form-row" v-if="mode == 'login'">
       Adresse mail et/ou mot de passe invalide
     </div>
-    <div class="form-row" v-if="mode == 'create' && status == 'error_create'">
+    <div class="form-row" v-if="mode == 'create'">
       Adresse mail déjà utilisée
-    </div>
-    <div class="form-row">
-      <button
-        @click="login()"
-        class="button"
-        :class="{ 'button--disabled': !validatedFields }"
-        v-if="mode == 'login'"
-      >
-        <span v-if="status == 'loading'">Connexion en cours...</span>
-
-        <span v-else>Connexion</span>
-      </button>
-      <button
-        @click="createAccount()"
-        class="button"
-        :class="{ 'button--disabled': !validatedFields }"
-        v-else
-      >
-        <span v-if="status == 'loading'">Création en cours...</span>
-
-        <span v-else>Créer mon compte</span>
-      </button>
+    </div> -->
+      <div class="form-row">
+        <button
+          @click="login()"
+          class="button"
+          :class="{ 'button--disabled': !validatedFields }"
+          v-if="mode == 'login'"
+        >
+          <span>Connexion</span>
+        </button>
+        <button
+          @click="createAccount()"
+          class="button"
+          :class="{ 'button--disabled': !validatedFields }"
+          v-else
+        >
+          <span>Créer mon compte</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -78,17 +79,27 @@
 <script>
 /* eslint-disable */
 import { mapState } from "vuex";
+import axios from "axios";
+import store from "@/store";
+
+const instanceUser = axios.create({
+  baseURL: "http://localhost:8000/api/user",
+});
 
 export default {
   name: "Login",
   data: function () {
     return {
       mode: "login",
-      email: "",
-      prenom: "",
-      nom: "",
-      password: "",
-      picture: "",
+      user: {
+        email: "",
+        surname: "",
+        name: "",
+        password: "",
+        picture: "",
+        bio: "",
+      },
+      errorMessage: "",
     };
   },
   mounted: function () {
@@ -101,24 +112,23 @@ export default {
     validatedFields: function () {
       if (this.mode == "create") {
         if (
-          this.email != "" &&
-          this.prenom != "" &&
-          this.nom != "" &&
-          this.password != ""
+          this.user.email != "" &&
+          this.user.surname != "" &&
+          this.user.name != "" &&
+          this.user.password != ""
         ) {
           return true;
         } else {
           return false;
         }
       } else {
-        if (this.email != "" && this.password != "") {
+        if (this.user.email != "" && this.user.password != "") {
           return true;
         } else {
           return false;
         }
       }
     },
-    ...mapState(["status"]),
   },
   methods: {
     SwitchToCreateAccount: function () {
@@ -128,42 +138,55 @@ export default {
       this.mode = "login";
     },
     login: function () {
-      const self = this;
-      this.$store
-        .dispatch("login", {
-          email: this.email,
-          password: this.password,
-        })
-        .then(
-          function () {
-            self.$router.push("profile");
-          },
-          function (error) {
-            console.log(error);
+      const user = { ...this.user };
+      instanceUser
+        .post("/login", user)
+        .then((data) => {
+          store.state.isLogged = true;
+          console.log(data);
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("userId", data.data.userId);
+          localStorage.setItem("isAdmin", data.data.isAdmin);
+
+          if (data.status === 200) {
+            this.$router.push("home");
+          } else {
+            this.errorMessage = "Email ou mot de passe incorrect";
+            return;
           }
-        );
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
     createAccount: function () {
-      const self = this;
-      console.log(this.picture);
+      const user = { ...this.user };
+      instanceUser.post("/signup", user).then((data) => {
+        if (data.status === 200) {
+          instanceUser
+            .post("/login", user)
+            .then((data) => {
+              store.state.isLogged = true;
+              console.log(data);
+              localStorage.setItem("token", data.data.token);
+              localStorage.setItem("userId", data.data.userId);
+              localStorage.setItem("isAdmin", data.data.isAdmin);
 
-      this.$store
-        .dispatch("createAccount", {
-          email: this.email,
-          name: this.nom,
-          surname: this.prenom,
-          password: this.password,
-          picture: "",
-          bio: "",
-        })
-        .then(
-          function () {
-            self.login();
-          },
-          function (error) {
-            console.log(error);
-          }
-        );
+              if (data.status === 200) {
+                this.$router.push("home");
+              } else {
+                this.errorMessage = "Email ou mot de passe incorrect";
+                return;
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        } else {
+          this.errorMessage = "Email déjà existant";
+          return;
+        }
+      });
     },
   },
 };

@@ -117,12 +117,13 @@ export default {
 
   beforeCreate() {
     /* on récupère le profil de l'user avant la création de la page */
-    if (this.$store.state.user.userId == -1) {
+    if (!this.$store.state.isLogged) {
       this.$router.push("/");
       return;
     } else {
+      const userId = localStorage.getItem("userId");
       instance
-        .get(`/${this.$store.state.user.userId}`)
+        .get(`/${userId}`)
         .then((data) => (this.user = data.data))
         .catch((error) => {
           error;
@@ -157,9 +158,9 @@ export default {
       formData.append("bio", this.user.bio);
       formData.append("password", this.user.password);
       formData.append("picture", this.user.picture);
-
+      const userId = localStorage.getItem("userId");
       instance
-        .put(`/${this.$store.state.user.userId}`, formData)
+        .put(`/${userId}`, formData)
         .then((res) => (this.mode = "display"))
         .catch((error) => {
           error;
@@ -168,8 +169,9 @@ export default {
 
     disabledUser: function () {
       const self = this;
+      const userId = localStorage.getItem("userId");
       instance
-        .put(`/disable/${this.$store.state.user.userId}`, { disabled: true })
+        .put(`/disable/${userId}`, { disabled: true })
         .then(() => {
           self.$store.commit("logout");
           self.$router.push("/");

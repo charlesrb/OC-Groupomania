@@ -14,6 +14,7 @@
             </p>
             <p>{{ user.bio }}</p>
             <p>{{ user.posts.length }} posts</p>
+            <p v-if="user.disabled">Compte désactivé</p>
           </div>
         </div>
       </div>

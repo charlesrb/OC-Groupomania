@@ -133,18 +133,18 @@ export default {
       post: {
         title: "",
         content: "",
-        authorId: this.$store.state.user.userId,
+        authorId: parseInt(localStorage.getItem("userId")),
         picture: "",
       },
       file: "",
       comment: {
         content: "",
-        authorId: this.$store.state.user.userId,
+        authorId: parseInt(localStorage.getItem("userId")),
         postId: "",
       },
       like: {
         postId: "",
-        authorId: this.$store.state.user.userId,
+        authorId: parseInt(localStorage.getItem("userId")),
       },
       // totalLike: "",
     };
@@ -167,7 +167,7 @@ export default {
 
   methods: {
     createPost: function () {
-      if (this.$store.state.user.userId == -1) {
+      if (this.$store.state.isLogged == false) {
         alert("Vous devez être connecté pour publier");
       } else {
         let formData = new FormData();
@@ -254,6 +254,7 @@ export default {
   height: 60px;
   border-radius: 30px;
   margin-right: 10px;
+  object-fit: cover;
 }
 .post__img {
   margin-top: 20px;

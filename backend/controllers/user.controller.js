@@ -47,6 +47,7 @@ const login = async (req, res, next) => {
       token: jwt.sign({ userId: user.id }, process.env.TOKEN_SECRET, {
         expiresIn: "24h",
       }),
+      isAdmin: user.isAdmin,
     });
     console.log("UserId", user.id, "Connected");
   }
@@ -158,6 +159,7 @@ const getUsers = async (req, res) => {
       createdAt: true,
       isAdmin: true,
       picture: true,
+      disabled: true,
       bio: true,
       posts: {
         select: {

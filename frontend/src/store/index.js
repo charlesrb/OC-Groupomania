@@ -29,6 +29,8 @@ if (!user) {
 
 export default Vuex.createStore({
   state: {
+    isLogged: localStorage.getItem("token"),
+
     status: "",
     user: user,
     userInfos: {
