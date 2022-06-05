@@ -142,17 +142,23 @@ export default {
       instanceUser
         .post("/login", user)
         .then((data) => {
-          store.state.isLogged = true;
-          console.log(data);
-          localStorage.setItem("token", data.data.token);
-          localStorage.setItem("userId", data.data.userId);
-          localStorage.setItem("isAdmin", data.data.isAdmin);
-
-          if (data.status === 200) {
-            this.$router.push("home");
+          if (data.data.disabled) {
+            alert(
+              "Votre compte est désactivé, veuillez contacter l'administrateur"
+            );
           } else {
-            this.errorMessage = "Email ou mot de passe incorrect";
-            return;
+            store.state.isLogged = true;
+            console.log(data);
+            localStorage.setItem("token", data.data.token);
+            localStorage.setItem("userId", data.data.userId);
+            localStorage.setItem("isAdmin", data.data.isAdmin);
+
+            if (data.status === 200) {
+              this.$router.push("home");
+            } else {
+              this.errorMessage = "Email ou mot de passe incorrect";
+              return;
+            }
           }
         })
         .catch((error) => {

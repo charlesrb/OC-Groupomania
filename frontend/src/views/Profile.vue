@@ -107,6 +107,8 @@
 /* eslint-disable */
 import axios from "axios";
 import Nav from "../components/nav.vue";
+import store from "@/store";
+
 const instance = axios.create({
   baseURL: "http://localhost:8000/api/user",
 });
@@ -173,8 +175,10 @@ export default {
       instance
         .put(`/disable/${userId}`, { disabled: true })
         .then(() => {
-          self.$store.commit("logout");
-          self.$router.push("/");
+          store.state.isLogged = false;
+          this.$router.push("/");
+          localStorage.clear();
+          console.log("user déconnecté");
         })
         .catch((error) => {
           error;

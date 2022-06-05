@@ -48,6 +48,7 @@ const login = async (req, res, next) => {
         expiresIn: "24h",
       }),
       isAdmin: user.isAdmin,
+      disabled: user.disabled,
     });
     console.log("UserId", user.id, "Connected");
   }
