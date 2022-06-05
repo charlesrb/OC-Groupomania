@@ -64,14 +64,19 @@ export default {
     };
   },
   beforeCreate() {
-    instanceUsers
-      .get("/")
-      .then((data) => {
-        this.users = data.data;
-      })
-      .catch((error) => {
-        error;
-      });
+    if (!this.$store.state.isLogged) {
+      this.$router.push("/");
+      return;
+    } else {
+      instanceUsers
+        .get("/")
+        .then((data) => {
+          this.users = data.data;
+        })
+        .catch((error) => {
+          error;
+        });
+    }
   },
 
   methods: {

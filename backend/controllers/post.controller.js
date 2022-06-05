@@ -113,17 +113,7 @@ const updatePost = async (req, res) => {
 
 const deletePost = async (req, res) => {
   const { id } = req.params;
-  const post = await prisma.post.findUnique({
-    where: {
-      id: parseInt(id),
-    },
-  });
-  if (!post) {
-    return res.status(404).json({ message: "Post not found" });
-  }
-  if (post.authorId !== req.user.id && req.user.role === false) {
-    return res.status(403).json({ message: "Interdit" });
-  }
+
   const result = await prisma.post.delete({
     where: {
       id: parseInt(id),

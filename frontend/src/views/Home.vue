@@ -49,13 +49,20 @@
 
       <div class="card__post" v-for="post in posts" :key="post.id">
         <div class="card__post--img">
-          <img :src="post.author.picture" />
-          <div class="card__post--title">
-            <h2>{{ post.title }}</h2>
-            <p>
-              {{ post.author.surname }} {{ post.author.name }} le
-              {{ formatDate(post) }}
-            </p>
+          <div class="card__post--detail">
+            <img :src="post.author.picture" />
+            <div class="card__post--title">
+              <h2>{{ post.title }}</h2>
+              <p>
+                {{ post.author.surname }} {{ post.author.name }} le
+                {{ formatDate(post) }}
+              </p>
+            </div>
+          </div>
+          <div class="card__post--delete" v-if="isAdmin == 'true'">
+            <span @click="deletePost(post.id)"
+              ><i class="fa-solid fa-circle-xmark"></i
+            ></span>
           </div>
         </div>
 
@@ -111,6 +118,10 @@ import axios from "axios";
 
 /* eslint-disable */
 
+const config = {
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+};
+
 const instancePost = axios.create({
   baseURL: "http://localhost:8000/api/post",
 });
@@ -146,23 +157,30 @@ export default {
         postId: "",
         authorId: parseInt(localStorage.getItem("userId")),
       },
+      isAdmin: localStorage.getItem("isAdmin"),
+
       // totalLike: "",
     };
   },
   beforeCreate() {
-    instancePost
-      .get("/")
-      .then((data) => {
-        this.posts = data.data;
-      })
-      .catch((error) => {
-        error;
-      });
+    if (!this.$store.state.isLogged) {
+      this.$router.push("/");
+      return;
+    } else {
+      instancePost
+        .get("/")
+        .then((data) => {
+          this.posts = data.data;
+        })
+        .catch((error) => {
+          error;
+        });
 
-    instanceComment
-      .get("/")
-      .then((data) => (this.comments = data.data))
-      .catch((error) => error);
+      instanceComment
+        .get("/")
+        .then((data) => (this.comments = data.data))
+        .catch((error) => error);
+    }
   },
 
   methods: {
@@ -177,7 +195,7 @@ export default {
         formData.append("authorId", this.post.authorId);
 
         instancePost
-          .post("/", formData)
+          .post("/", formData, config)
           .then(() => location.reload())
           .catch((error) => error);
       }
@@ -197,7 +215,12 @@ export default {
         .then((res) => location.reload())
         .catch((error) => error);
     },
-
+    deletePost: function (postId) {
+      instancePost
+        .delete(`/${postId}`, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
     // getLike: function (post) {
     //   this.like.postId = post.id;
     //   instanceLike
@@ -246,8 +269,18 @@ export default {
 .card__post--img {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
+  justify-content: space-between;
+}
+
+.card__post--detail {
+  display: flex;
+  flex-direction: row;
+}
+
+.card__post--delete {
+  color: #fd2d01;
 }
 .card__post--img img {
   width: 60px;
@@ -256,6 +289,7 @@ export default {
   margin-right: 10px;
   object-fit: cover;
 }
+
 .post__img {
   margin-top: 20px;
   height: 300px;
