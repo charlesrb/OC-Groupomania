@@ -57,7 +57,7 @@ const login = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10);
+    const hashedPassword = await bcrypt.hash(req.body.password[0], 10);
     const data = {
       surname: req.body.surname,
       name: req.body.name,

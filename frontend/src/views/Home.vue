@@ -52,22 +52,64 @@
           <div class="card__post--detail">
             <img :src="post.author.picture" />
             <div class="card__post--title">
-              <h2>{{ post.title }}</h2>
+              <h2 v-if="mode == 'display' || post_modify != post.id">
+                {{ post.title }}
+              </h2>
+              <div
+                class="form-row"
+                v-if="mode == 'modify' && post_modify == post.id"
+              >
+                <input
+                  v-model="post.title"
+                  class="form-row__input"
+                  type="text"
+                  placeholder="Titre du post"
+                />
+              </div>
+
               <p>
                 {{ post.author.surname }} {{ post.author.name }} le
                 {{ formatDate(post) }}
               </p>
             </div>
           </div>
-          <div class="card__post--delete" v-if="isAdmin == 'true'">
-            <span @click="deletePost(post.id)"
-              ><i class="fa-solid fa-circle-xmark"></i
-            ></span>
+          <div class="admin__button">
+            <div class="card__post--delete" v-if="post.author.id == userId">
+              <span @click="SwitchToModifyPost(post)" v-if="mode == 'display'">
+                <i class="fa-solid fa-pen"></i>
+              </span>
+              <span @click="SwitchToDisplayPost(post)" v-if="mode == 'modify'">
+                <i class="fa-solid fa-circle-xmark"></i>
+              </span>
+            </div>
+            <div
+              class="card__post--delete"
+              v-if="isAdmin == 'true' || post.author.id == userId"
+            >
+              <span @click="deletePost(post.id)"
+                ><i class="fa-solid fa-circle-xmark"></i
+              ></span>
+            </div>
           </div>
         </div>
 
-        <p>{{ post.content }}</p>
+        <p v-if="mode == 'display' || post_modify != post.id">
+          {{ post.content }}
+        </p>
+        <div class="form-row" v-if="mode == 'modify' && post_modify == post.id">
+          <textarea
+            v-model="post.content"
+            class="form-row__input--textarea"
+            type="textarea"
+            placeholder="Contenu du post"
+          ></textarea>
+        </div>
         <img class="post__img" :src="post.picture" v-if="post.picture" />
+        <div class="sent" v-if="mode == 'modify' && post_modify == post.id">
+          <button @click="modifyPost(post)" class="button__comment">
+            Modifier
+          </button>
+        </div>
         <div class="card__post--like">
           <span @click="createLike(post)"
             ><i
@@ -157,6 +199,9 @@ export default {
         authorId: parseInt(localStorage.getItem("userId")),
       },
       isAdmin: localStorage.getItem("isAdmin"),
+      userId: parseInt(localStorage.getItem("userId")),
+      mode: "display",
+      post_modify: "",
 
       // totalLike: "",
     };
@@ -183,6 +228,25 @@ export default {
   },
   computed: {},
   methods: {
+    SwitchToModifyPost: function (post) {
+      this.mode = "modify";
+      this.post_modify = post.id;
+    },
+    SwitchToDisplayPost: function (post) {
+      this.mode = "display";
+    },
+
+    modifyPost: function (post) {
+      console.log(post.title);
+      let data = {
+        title: post.title,
+        content: post.content,
+      };
+      instancePost
+        .put(`/${post.id}`, data, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
     createPost: function () {
       if (this.$store.state.isLogged == false) {
         alert("Vous devez être connecté pour publier");
@@ -204,12 +268,8 @@ export default {
         (like) => like.authorId == localStorage.getItem("userId")
       );
       if (postLikedAuthor.length == 0) {
-        console.log("pas liké !");
-
         return false;
       } else {
-        console.log("liké !");
-
         return true;
       }
     },
@@ -228,19 +288,13 @@ export default {
         .then((res) => location.reload())
         .catch((error) => error);
     },
+
     deletePost: function (postId) {
       instancePost
         .delete(`/${postId}`, config)
         .then(() => location.reload())
         .catch((error) => error);
     },
-    // getLike: function (post) {
-    //   this.like.postId = post.id;
-    //   instanceLike
-    //     .get("/", this.like)
-    //     .then((res) => (this.totalLike = res.data.length))
-    //     .catch((error) => error);
-    // },
 
     onFileSelected(event) {
       this.post.picture = this.$refs.picture.files[0];
@@ -285,7 +339,11 @@ export default {
   margin-bottom: 20px;
   justify-content: space-between;
 }
-
+.admin__button {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
 .card__post--detail {
   display: flex;
   flex-direction: row;

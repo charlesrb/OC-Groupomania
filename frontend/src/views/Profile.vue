@@ -80,6 +80,9 @@
         <button @click="SwitchToEditingProfile()" class="button">
           Modifier mon profil
         </button>
+        <button @click="modifyAccount()" class="button">
+          Modifier mon mot de passe
+        </button>
       </div>
 
       <div class="form-row" v-if="mode == 'editing'">
@@ -163,7 +166,7 @@ export default {
       const userId = localStorage.getItem("userId");
       instance
         .put(`/${userId}`, formData)
-        .then((res) => (this.mode = "display"))
+        .then((res) => location.reload())
         .catch((error) => {
           error;
         });

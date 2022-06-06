@@ -161,6 +161,7 @@ export default {
 }
 
 .title-membres {
+  margin-top: 100px;
   font-size: 48px;
   margin-bottom: 10px;
   color: white;
