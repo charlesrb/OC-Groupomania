@@ -65,6 +65,7 @@ const createPost = async (req, res) => {
     content: req.body.content,
     authorId: parseInt(req.body.authorId),
   };
+  console.log(req.file);
   if (req.file) {
     data.picture = `${req.protocol}://${req.get("host")}/images/${
       req.file.filename
@@ -82,21 +83,32 @@ const createPost = async (req, res) => {
 
 const updatePost = async (req, res) => {
   const { id } = req.params;
-  const { title, content } = req.body;
-  const post = await prisma.post.findUnique({
-    where: {
-      id: parseInt(id),
-    },
-  });
+  // const { title, content } = req.body;
+  console.log(req.body.picture);
+
+  const data = {
+    title: req.body.title,
+    content: req.body.content,
+  };
+  if (req.body.picture) {
+    data.picture = `${req.protocol}://${req.get("host")}/images/${
+      req.body.picture
+    }`;
+  } else {
+    data.picture = "";
+  }
+
+  // const post = await prisma.post.findUnique({
+  //   where: {
+  //     id: parseInt(id),
+  //   },
+  // });
 
   const result = await prisma.post.update({
     where: {
       id: parseInt(id),
     },
-    data: {
-      title,
-      content,
-    },
+    data,
   });
   console.log("Modify post Id:", id);
   res.json(result);

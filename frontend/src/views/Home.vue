@@ -79,7 +79,7 @@
                 <i class="fa-solid fa-pen"></i>
               </span>
               <span @click="SwitchToDisplayPost(post)" v-if="mode == 'modify'">
-                <i class="fa-solid fa-circle-xmark"></i>
+                <i class="fa-solid fa-arrow-left"></i>
               </span>
             </div>
             <div
@@ -104,7 +104,9 @@
             placeholder="Contenu du post"
           ></textarea>
         </div>
+
         <img class="post__img" :src="post.picture" v-if="post.picture" />
+
         <div class="sent" v-if="mode == 'modify' && post_modify == post.id">
           <button @click="modifyPost(post)" class="button__comment">
             Modifier
@@ -128,9 +130,56 @@
                 <img :src="comment.author.picture" />
               </div>
               <div class="comment--content">
-                <h5>{{ comment.author.surname }} {{ comment.author.name }}</h5>
-                <p>Le {{ formatDate(comment) }}</p>
-                <p>{{ comment.content }}</p>
+                <div class="comment--content-meta">
+                  <div>
+                    <h5>
+                      {{ comment.author.surname }} {{ comment.author.name }}
+                    </h5>
+                    <p>Le {{ formatDate(comment) }}</p>
+                  </div>
+                  <div class="admin__button">
+                    <div
+                      class="card__comment--delete"
+                      v-if="comment.author.id == userId"
+                    >
+                      <span
+                        @click="SwitchToModifyComment(comment)"
+                        v-if="mode == 'display'"
+                      >
+                        <i class="fa-solid fa-pen"></i>
+                      </span>
+                      <span
+                        @click="SwitchToDisplayComment(comment)"
+                        v-if="mode == 'modify'"
+                      >
+                        <i class="fa-solid fa-arrow-left"></i>
+                      </span>
+                    </div>
+                    <div
+                      class="card__post--delete"
+                      v-if="isAdmin == 'true' || comment.author.id == userId"
+                    >
+                      <span @click="deleteComment(comment.id)"
+                        ><i class="fa-solid fa-circle-xmark"></i
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+                <p v-if="mode == 'display' || comment_modify != comment.id">
+                  {{ comment.content }}
+                </p>
+
+                <div
+                  class="form-row"
+                  v-if="mode == 'modify' && comment_modify == comment.id"
+                >
+                  <textarea
+                    v-model="comment.content"
+                    class="form-row__input--textarea--comment"
+                    type="textarea"
+                    placeholder="Contenu du post"
+                  ></textarea>
+                </div>
               </div>
             </div>
           </div>
@@ -202,6 +251,7 @@ export default {
       userId: parseInt(localStorage.getItem("userId")),
       mode: "display",
       post_modify: "",
+      comment_modify: "",
 
       // totalLike: "",
     };
@@ -236,15 +286,23 @@ export default {
       this.mode = "display";
     },
 
+    SwitchToModifyComment: function (comment) {
+      this.mode = "modify";
+      this.comment_modify = comment.id;
+    },
+    SwitchToDisplayComment: function (comment) {
+      this.mode = "display";
+    },
+
     modifyPost: function (post) {
-      console.log(post.title);
       let data = {
         title: post.title,
         content: post.content,
       };
+      console.log(data);
       instancePost
         .put(`/${post.id}`, data, config)
-        .then(() => location.reload())
+        .then((response) => console.log(response))
         .catch((error) => error);
     },
     createPost: function () {
@@ -276,7 +334,7 @@ export default {
     createComment: function (post) {
       this.comment.postId = post.id;
       instanceComment
-        .post("/", this.comment)
+        .post("/", this.comment, config)
         .then((res) => location.reload())
         .catch((error) => error);
     },
@@ -284,7 +342,7 @@ export default {
     createLike: function (post) {
       this.like.postId = post.id;
       instanceLike
-        .post("/", this.like)
+        .post("/", this.like, config)
         .then((res) => location.reload())
         .catch((error) => error);
     },
@@ -292,6 +350,13 @@ export default {
     deletePost: function (postId) {
       instancePost
         .delete(`/${postId}`, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
+
+    deleteComment: function (commentId) {
+      instanceComment
+        .delete(`/${commentId}`, config)
         .then(() => location.reload())
         .catch((error) => error);
     },
@@ -308,6 +373,20 @@ export default {
         reader.readAsDataURL(input.files[0]);
       }
     },
+    onFileSelectedModify(post) {
+      post.picture = this.$refs.picture.files[0];
+      console.log(this.file);
+      // let input = event.target;
+
+      // if (input.files) {
+      //   let reader = new FileReader();
+      //   reader.onload = (e) => {
+      //     document.getElementById("preview").src = e.target.result;
+      //   };
+      //   reader.readAsDataURL(input.files[0]);
+      // }
+    },
+
     formatDate: function (date) {
       const options = { hour: "numeric", minute: "numeric" };
       const newDateMonth = new Date(date.createdAt).toLocaleDateString();
@@ -391,6 +470,16 @@ export default {
   border-radius: 20px;
 }
 
+.comment--content-meta {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.comment--content-meta span {
+  color: #fd2d01;
+}
+
 .comment--img img {
   width: 40px;
   border-radius: 20px;
@@ -434,6 +523,21 @@ export default {
   padding: 8px;
   border: none;
   border-radius: 8px;
+  background: #f2f2f2;
+  font-weight: 500;
+  font-size: 16px;
+  flex: 1;
+  color: black;
+  height: 100px;
+  overflow: auto;
+  word-wrap: break-word;
+}
+
+.form-row__input--textarea--comment {
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 3px 3px 10px 2px rgba(0, 0, 0, 0.2);
+  border: none;
   background: #f2f2f2;
   font-weight: 500;
   font-size: 16px;

@@ -52,4 +52,16 @@ const getComments = async (req, res, next) => {
   }
 };
 
-module.exports = { getComments, createComment };
+const deleteComment = async (req, res) => {
+  const { id } = req.params;
+
+  const result = await prisma.comment.delete({
+    where: {
+      id: parseInt(id),
+    },
+  });
+  console.log("Delete comment Id:", id);
+  res.json(result);
+};
+
+module.exports = { getComments, createComment, deleteComment };
