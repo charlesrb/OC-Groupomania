@@ -30,7 +30,7 @@
           :placeholder="user.name"
         />
       </div>
-      <div class="form-row" v-if="mode == 'modify_password'">
+      <div id="oldPassword" class="form-row" v-if="mode == 'modify_password'">
         <input
           v-model="user.password"
           class="form-row__input"
@@ -46,7 +46,11 @@
           placeholder="Veuillez saisir votre nouveau mot de passe"
         />
       </div>
-      <div class="form-row" v-if="mode == 'modify_password'">
+      <div
+        id="passwordConfirm"
+        class="form-row"
+        v-if="mode == 'modify_password'"
+      >
         <input
           v-model="user.newPassword"
           class="form-row__input"
@@ -120,7 +124,7 @@
       </div>
       <div class="form-row" v-if="mode == 'modify_password'">
         <button @click="modifyPassword()" class="button">
-          Modifier mon mot de pass
+          Modifier mon mot de passe
         </button>
       </div>
       <div
@@ -216,28 +220,40 @@ export default {
         });
     },
     modifyPassword: function () {
-      // console.log(this.user.password);
-      // console.log(this.user.newPassword);
-      // console.log(this.user.newPasswordConfirm);
-
-      if (
-        this.user.password == this.user.newPassword &&
-        this.user.newPassword == this.user.newPasswordConfirm
-      ) {
+      if (this.user.newPassword == this.user.newPasswordConfirm) {
         const userId = localStorage.getItem("userId");
         let data = {
-          password: this.user.newPassword,
+          password: this.user.password,
+          newPassword: this.user.newPassword,
         };
         console.log(this.user.newPassword);
-
-        instance
-          .put(`/modifypassword/${userId}`, data, config)
-          .then((res) => console.log(res))
-          .catch((error) => {
-            error;
-          });
+        try {
+          instance
+            .put(`/modifypassword/${userId}`, data, config)
+            .then((data) => {
+              location.reload();
+            })
+            .catch((error) => {
+              error;
+              if (error.response.status) {
+                document
+                  .getElementById("oldPassword")
+                  .insertAdjacentHTML(
+                    "afterend",
+                    "<span style='color:red; font-weight:700;'>Votre mot de passe n'est pas correct</span>"
+                  );
+              }
+            });
+        } catch {
+          console.log("blabla");
+        }
       } else {
-        alert("ERREUR !");
+        document
+          .getElementById("passwordConfirm")
+          .insertAdjacentHTML(
+            "afterend",
+            "<span style='color:red; font-weight:700;'>Vos deux mots de passe doivent être identiques</span>"
+          );
       }
     },
 
@@ -277,6 +293,11 @@ export default {
 .card__detail {
   font-size: 18px;
   font-weight: 400;
+}
+
+.passwordError {
+  color: red;
+  font-weight: 700;
 }
 
 .card__img img {

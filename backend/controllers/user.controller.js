@@ -91,24 +91,41 @@ const updateUser = async (req, res, next) => {
 
 const modifyPassword = async (req, res, next) => {
   try {
-    console.log(req.body);
     const id = req.params.id;
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedNewPassword = await bcrypt.hash(req.body.newPassword, 10);
+
     const data = {
-      password: hashedPassword,
+      password: req.body.password,
+      newPassword: hashedNewPassword,
     };
 
-    const user = await prisma.user.update({
+    const user = await prisma.user.findUnique({
       where: {
         id: Number(id),
       },
-      data,
     });
-    res.status(201).json({
-      status: true,
-      message: "Password updated !",
-      data: user,
-    });
+
+    const isValid = await bcrypt.compare(data.password, user.password);
+    console.log(isValid);
+    if (!isValid) {
+      return res
+        .status(400)
+        .json({ error: "Le mot de passe n'est pas le bon" });
+    } else {
+      const user = await prisma.user.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          password: data.newPassword,
+        },
+      });
+      res.status(201).json({
+        status: true,
+        message: "Password updated !",
+        data: user,
+      });
+    }
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ message: error.message });
