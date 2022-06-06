@@ -57,12 +57,12 @@ const login = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const hashedPassword = await bcrypt.hash(req.body.password[0], 10);
+    // const hashedPassword = await bcrypt.hash(req.body.password[0], 10);
     const data = {
       surname: req.body.surname,
       name: req.body.name,
       email: req.body.email,
-      password: hashedPassword,
+      // password: hashedPassword,
       bio: req.body.bio,
     };
 
@@ -81,6 +81,32 @@ const updateUser = async (req, res, next) => {
     res.status(201).json({
       status: true,
       message: "Profile updated !",
+      data: user,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const modifyPassword = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const id = req.params.id;
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const data = {
+      password: hashedPassword,
+    };
+
+    const user = await prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data,
+    });
+    res.status(201).json({
+      status: true,
+      message: "Password updated !",
       data: user,
     });
   } catch (error) {
@@ -189,4 +215,5 @@ module.exports = {
   getOneUser,
   updateUser,
   getUsers,
+  modifyPassword,
 };

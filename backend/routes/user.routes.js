@@ -10,6 +10,8 @@ router.put("/disable/:id", userController.deleteUser);
 router.get("/:id", userController.getOneUser);
 router.get("/", userController.getUsers);
 router.put("/:id", multer, userController.updateUser);
+router.put("/modifypassword/:id", userController.modifyPassword);
+
 // router.put("/:id", userController.modifyUser);
 
 module.exports = router;

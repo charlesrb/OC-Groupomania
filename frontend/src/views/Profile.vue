@@ -5,8 +5,13 @@
       <div class="card__img"><img :src="user.picture" /><br /></div>
       <h1 v-if="mode == 'display'" class="card__title">Profil</h1>
       <h1 v-if="mode == 'editing'" class="card__title">Modifier mon profil</h1>
+      <h1 v-if="mode == 'modify_password'" class="card__title">
+        Modifier mon mot de passe
+      </h1>
 
-      <p class="card__subtitle">Voilà qui je suis</p>
+      <p class="card__subtitle" v-if="mode != 'modify_password'">
+        Voilà qui je suis
+      </p>
       <br />
       <h2 v-if="mode == 'display'">
         Prénom : <span class="card__detail">{{ user.surname }}</span>
@@ -25,15 +30,38 @@
           :placeholder="user.name"
         />
       </div>
-
-      <div v-if="mode == 'editing'" class="form-row">
+      <div class="form-row" v-if="mode == 'modify_password'">
+        <input
+          v-model="user.password"
+          class="form-row__input"
+          type="password"
+          placeholder="Veuillez saisir votre ancien mot de passe"
+        />
+      </div>
+      <div class="form-row" v-if="mode == 'modify_password'">
+        <input
+          v-model="user.newPasswordConfirm"
+          class="form-row__input"
+          type="password"
+          placeholder="Veuillez saisir votre nouveau mot de passe"
+        />
+      </div>
+      <div class="form-row" v-if="mode == 'modify_password'">
+        <input
+          v-model="user.newPassword"
+          class="form-row__input"
+          type="password"
+          placeholder="Confirmez votre nouveau mot de passe"
+        />
+      </div>
+      <!-- <div v-if="mode == 'editing'" class="form-row">
         <input
           v-model="user.password"
           class="form-row__input"
           type="password"
           placeholder="Mot de passe"
         />
-      </div>
+      </div> -->
 
       <h2 v-if="mode == 'editing'">Biographie :</h2>
       <div v-if="mode == 'editing'" class="form-row">
@@ -80,7 +108,7 @@
         <button @click="SwitchToEditingProfile()" class="button">
           Modifier mon profil
         </button>
-        <button @click="modifyAccount()" class="button">
+        <button @click="SwitchToModifyPassword()" class="button">
           Modifier mon mot de passe
         </button>
       </div>
@@ -90,7 +118,15 @@
           Modifier mon profil
         </button>
       </div>
-      <div class="form-row" v-if="mode == 'editing'">
+      <div class="form-row" v-if="mode == 'modify_password'">
+        <button @click="modifyPassword()" class="button">
+          Modifier mon mot de pass
+        </button>
+      </div>
+      <div
+        class="form-row"
+        v-if="mode == 'editing' || mode == 'modify_password'"
+      >
         <button @click="SwitchToDisplayingProfile()" class="button">
           Retour au profil
         </button>
@@ -115,6 +151,10 @@ import store from "@/store";
 const instance = axios.create({
   baseURL: "http://localhost:8000/api/user",
 });
+
+const config = {
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+};
 
 export default {
   name: "Profile",
@@ -150,6 +190,10 @@ export default {
     SwitchToDisplayingProfile: function () {
       this.mode = "display";
     },
+    SwitchToModifyPassword: function () {
+      this.mode = "modify_password";
+    },
+
     logout: function () {
       this.$store.commit("logout");
       this.$router.push("/");
@@ -159,7 +203,7 @@ export default {
       let formData = new FormData();
       formData.append("surname", this.user.surname);
       formData.append("name", this.user.name);
-      formData.append("password", this.user.password);
+      // formData.append("password", this.user.password);
       formData.append("bio", this.user.bio);
       formData.append("password", this.user.password);
       formData.append("picture", this.user.picture);
@@ -170,6 +214,31 @@ export default {
         .catch((error) => {
           error;
         });
+    },
+    modifyPassword: function () {
+      // console.log(this.user.password);
+      // console.log(this.user.newPassword);
+      // console.log(this.user.newPasswordConfirm);
+
+      if (
+        this.user.password == this.user.newPassword &&
+        this.user.newPassword == this.user.newPasswordConfirm
+      ) {
+        const userId = localStorage.getItem("userId");
+        let data = {
+          password: this.user.newPassword,
+        };
+        console.log(this.user.newPassword);
+
+        instance
+          .put(`/modifypassword/${userId}`, data, config)
+          .then((res) => console.log(res))
+          .catch((error) => {
+            error;
+          });
+      } else {
+        alert("ERREUR !");
+      }
     },
 
     disabledUser: function () {
