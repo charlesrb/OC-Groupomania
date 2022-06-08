@@ -47,7 +47,7 @@
           placeholder="Mot de passe"
         />
       </div>
-
+      <div id="alert__message"></div>
       <!-- <div class="form-row" v-if="mode == 'login'">
       Adresse mail et/ou mot de passe invalide
     </div>
@@ -139,13 +139,13 @@ export default {
     },
     login: function () {
       const user = { ...this.user };
+      document.getElementById("alert__message").innerHTML = "";
       instanceUser
         .post("/login", user)
         .then((data) => {
           if (data.data.disabled) {
-            alert(
-              "Votre compte est désactivé, veuillez contacter l'administrateur"
-            );
+            document.getElementById("alert__message").innerHTML =
+              "<span style='color:red; font-weight:700;'>Votre compte est désactivé, veuillez contacter l'administrateur</span>";
           } else {
             store.state.isLogged = true;
             console.log(data);
@@ -155,14 +155,15 @@ export default {
 
             if (data.status === 200) {
               this.$router.push("home");
-            } else {
-              this.errorMessage = "Email ou mot de passe incorrect";
-              return;
             }
           }
         })
         .catch((error) => {
-          console.error(error);
+          error;
+          if (error.response.status) {
+            document.getElementById("alert__message").innerHTML =
+              "<span style='color:red; font-weight:700;'>Email ou mot de passe incorrect</span>";
+          }
         });
     },
     createAccount: function () {
