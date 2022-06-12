@@ -70,14 +70,28 @@ const updateUser = async (req, res, next) => {
       data.picture = `${req.protocol}://${req.get("host")}/images/${
         req.file.filename
       }`;
+      const findUser = await prisma.user.findUnique({
+        where: {
+          id: Number(id),
+        },
+      });
+      const filename = findUser.picture.split("/images/")[1];
+      fs.unlink(`images/${filename}`, (error) => {
+        if (error) console.log(error);
+        else {
+          console.log("Le fichier image a été supprimé");
+        }
+      });
     }
     console.log(data);
+
     const user = await prisma.user.update({
       where: {
         id: Number(id),
       },
       data,
     });
+
     res.status(201).json({
       status: true,
       message: "Profile updated !",

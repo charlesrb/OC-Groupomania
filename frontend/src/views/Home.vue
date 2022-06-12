@@ -156,7 +156,7 @@
                       </span>
                     </div>
                     <div
-                      class="card__post--delete"
+                      class="card__comment--delete"
                       v-if="isAdmin == 'true' || comment.author.id == userId"
                     >
                       <span @click="deleteComment(comment.id)"
@@ -430,6 +430,7 @@ export default {
 
 .card__post--delete {
   color: #fd2d01;
+  cursor: pointer;
 }
 .card__post--img img {
   width: 60px;
@@ -572,6 +573,10 @@ export default {
 }
 
 .card__post--like span:hover {
+  cursor: pointer;
+}
+
+.card__comment--delete span:hover {
   cursor: pointer;
 }
 
