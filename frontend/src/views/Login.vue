@@ -47,7 +47,7 @@
           placeholder="Mot de passe"
         />
       </div>
-      <div id="alert__message"></div>
+      <div id="alert__message">{{ errMessage }}</div>
       <!-- <div class="form-row" v-if="mode == 'login'">
       Adresse mail et/ou mot de passe invalide
     </div>
@@ -99,7 +99,7 @@ export default {
         picture: "",
         bio: "",
       },
-      errorMessage: "",
+      errMessage: "",
     };
   },
   mounted: function () {
@@ -133,9 +133,11 @@ export default {
   methods: {
     SwitchToCreateAccount: function () {
       this.mode = "create";
+      this.errMessage = "";
     },
     SwitchToLogin: function () {
       this.mode = "login";
+      this.errMessage = "";
     },
     login: function () {
       const user = { ...this.user };
@@ -144,8 +146,8 @@ export default {
         .post("/login", user)
         .then((data) => {
           if (data.data.disabled) {
-            document.getElementById("alert__message").innerHTML =
-              "<span style='color:red; font-weight:700;'>Votre compte est désactivé, veuillez contacter l'administrateur</span>";
+            this.errMessage =
+              "Votre compte est désactivé, veuillez contacter l'administrateur";
           } else {
             store.state.isLogged = true;
             console.log(data);
@@ -161,39 +163,69 @@ export default {
         .catch((error) => {
           error;
           if (error.response.status) {
-            document.getElementById("alert__message").innerHTML =
-              "<span style='color:red; font-weight:700;'>Email ou mot de passe incorrect</span>";
+            this.errMessage = "Email ou mot de passe incorrect";
           }
         });
     },
     createAccount: function () {
       const user = { ...this.user };
-      instanceUser.post("/signup", user).then((data) => {
-        if (data.status === 200) {
-          instanceUser
-            .post("/login", user)
-            .then((data) => {
-              store.state.isLogged = true;
-              console.log(data);
-              localStorage.setItem("token", data.data.token);
-              localStorage.setItem("userId", data.data.userId);
-              localStorage.setItem("isAdmin", data.data.isAdmin);
+      console.log(user);
+      /* nos regex */
+      const regexName = /^[a-zéèçàêïü]{2,50}(-| )?([a-zéèçà]{2,50})?$/gim;
+      const regexEmail = /^[\w-.]{2,32}@([\w-]+\.)+[\w-]{2,4}$/g;
+      const regexPassword = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,32})/;
+      /* nos véfifications */
+      if (!regexName.test(user.surname && user.name)) {
+        this.errMessage = "Name Err! => format nom et/ou prénom incorrect";
+        return;
+      }
+      if (!regexEmail.test(user.email)) {
+        this.errMessage =
+          "Email Err! => l'email inscrit n'a pas le bon format (exemple@mail.com)";
+        return;
+      }
+      if (!regexPassword.test(user.password)) {
+        this.errMessage =
+          "Password Err! => entre 8 et 32 caractères + 1 minuscule min + 1 maj min + 1 caractère spécial";
+        return;
+      }
 
-              if (data.status === 200) {
-                this.$router.push("home");
-              } else {
-                this.errorMessage = "Email ou mot de passe incorrect";
-                return;
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        } else {
-          this.errorMessage = "Email déjà existant";
-          return;
-        }
-      });
+      instanceUser
+        .post("/signup", user)
+        .then((data) => {
+          if (data.status === 200) {
+            instanceUser
+              .post("/login", user)
+              .then((data) => {
+                store.state.isLogged = true;
+                console.log(data);
+                localStorage.setItem("token", data.data.token);
+                localStorage.setItem("userId", data.data.userId);
+                localStorage.setItem("isAdmin", data.data.isAdmin);
+
+                if (data.status === 200) {
+                  this.$router.push("home");
+                } else {
+                  this.errMessage = "Email ou mot de passe incorrect";
+                  return;
+                }
+              })
+              .catch((error) => {
+                console.error(error);
+                this.errMessage = "Email déjà existant";
+              });
+          } else {
+            this.errMessage = "Email déjà existant";
+            return;
+          }
+        })
+        .catch((error) => {
+          error;
+          if (error.response.status) {
+            this.errMessage =
+              "Il existe déjà un compte avec cette adresse email";
+          }
+        });
     },
   },
 };
@@ -216,6 +248,11 @@ export default {
   flex: 1;
   min-width: 100px;
   color: black;
+}
+
+#alert__message {
+  font-weight: 700;
+  color: red;
 }
 .form-row__input::placeholder {
   color: #aaaaaa;

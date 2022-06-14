@@ -96,12 +96,17 @@
         />
       </div>
       <div class="form-row" v-if="mode == 'editing'">
+        <label for="picture" class="uploadPicture"
+          ><i class="fa-solid fa-image uploadPicture__icon"></i>Choisissez une
+          image</label
+        >
         <input
           class="form-row__input"
           type="file"
           ref="picture"
           name="picture"
           id="picture"
+          hidden
           @change="onFileSelected"
         />
       </div>
@@ -184,6 +189,7 @@ export default {
       mode: "display",
       user: {},
       file: "",
+      newPicture: "",
     };
   },
 
@@ -210,7 +216,7 @@ export default {
       // formData.append("password", this.user.password);
       formData.append("bio", this.user.bio);
       formData.append("password", this.user.password);
-      formData.append("picture", this.user.picture);
+      formData.append("picture", this.newPicture);
       const userId = localStorage.getItem("userId");
       instance
         .put(`/${userId}`, formData)
@@ -274,7 +280,7 @@ export default {
     },
 
     onFileSelected(event) {
-      this.user.picture = this.$refs.picture.files[0];
+      this.newPicture = this.$refs.picture.files[0];
       let input = event.target;
 
       if (input.files) {
@@ -293,6 +299,18 @@ export default {
 .card__detail {
   font-size: 18px;
   font-weight: 400;
+}
+
+.uploadPicture {
+  background-color: #ffd7d7;
+  color: #fd2d01;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.uploadPicture__icon {
+  margin-right: 10px;
 }
 
 .passwordError {

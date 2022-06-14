@@ -26,12 +26,18 @@
         ></textarea>
       </div>
       <div class="form-row">
+        <label for="picture" class="uploadPicture"
+          ><i class="fa-solid fa-image uploadPicture__icon"></i>Choisissez une
+          image</label
+        >
+
         <input
           class="form-row__input"
           type="file"
           ref="picture"
           name="picture"
           id="picture"
+          hidden
           @change="onFileSelected"
         />
       </div>
@@ -51,6 +57,8 @@
         <div class="card__post--img">
           <div class="card__post--detail">
             <img :src="post.author.picture" />
+            <!-- <img :src="post.author.picture" /> -->
+
             <div class="card__post--title">
               <h2 v-if="mode == 'display' || post_modify != post.id">
                 {{ post.title }}
@@ -78,7 +86,10 @@
               <span @click="SwitchToModifyPost(post)" v-if="mode == 'display'">
                 <i class="fa-solid fa-pen"></i>
               </span>
-              <span @click="SwitchToDisplayPost(post)" v-if="mode == 'modify'">
+              <span
+                @click="SwitchToDisplayPost(post)"
+                v-if="mode == 'modify' && post_modify == post.id"
+              >
                 <i class="fa-solid fa-arrow-left"></i>
               </span>
             </div>
@@ -105,8 +116,58 @@
           ></textarea>
         </div>
 
-        <img class="post__img" :src="post.picture" v-if="post.picture" />
+        <img
+          class="post__img"
+          :src="post.picture"
+          v-if="post.picture && mode == 'display' && showImage"
+          @click="toggleImage(post)"
+        />
+        <!-- <div
+          class="divBigImage"
+          v-if="
+            post.picture &&
+            mode == 'display' &&
+            !showImage &&
+            postBigImage == post.id
+          "
+          @click="toggleImage(post)"
+        > -->
+        <img
+          class="post__img--big"
+          :src="post.picture"
+          v-if="
+            post.picture &&
+            mode == 'display' &&
+            !showImage &&
+            postBigImage == post.id
+          "
+          @click="toggleImage(post)"
+        />
+        <!-- </div> -->
 
+        <div class="form-row" v-if="mode == 'modify' && post_modify == post.id">
+          <label for="newPicture" class="uploadPicture"
+            ><i class="fa-solid fa-image uploadPicture__icon"></i>Choisissez une
+            image</label
+          >
+          <input
+            class="form-row__input"
+            type="file"
+            ref="newPicture"
+            name="newPicture"
+            id="newPicture"
+            hidden
+            @change="onFileSelectedModify"
+          />
+        </div>
+        <div class="form-row" v-if="mode == 'modify' && post_modify == post.id">
+          <img
+            id="previewModify"
+            :src="post.picture"
+            :alt="post.picture"
+            class="profile"
+          />
+        </div>
         <div class="sent" v-if="mode == 'modify' && post_modify == post.id">
           <button @click="modifyPost(post)" class="button__comment">
             Modifier
@@ -205,7 +266,6 @@
 <script>
 import Nav from "../components/nav.vue";
 import axios from "axios";
-
 /* eslint-disable */
 
 const config = {
@@ -252,7 +312,9 @@ export default {
       mode: "display",
       post_modify: "",
       comment_modify: "",
-
+      newPicture: "",
+      showImage: true,
+      postBigImage: "",
       // totalLike: "",
     };
   },
@@ -294,15 +356,20 @@ export default {
       this.mode = "display";
     },
 
+    toggleImage: function (post) {
+      this.showImage = !this.showImage;
+      this.postBigImage = post.id;
+    },
+
     modifyPost: function (post) {
-      let data = {
-        title: post.title,
-        content: post.content,
-      };
-      console.log(data);
+      let formData = new FormData();
+      formData.append("title", post.title);
+      formData.append("content", post.content);
+      formData.append("picture", this.newPicture);
+
       instancePost
-        .put(`/${post.id}`, data, config)
-        .then((response) => console.log(response))
+        .put(`/${post.id}`, formData, config)
+        .then(() => location.reload())
         .catch((error) => error);
     },
     createPost: function () {
@@ -363,6 +430,8 @@ export default {
 
     onFileSelected(event) {
       this.post.picture = this.$refs.picture.files[0];
+      console.log(this.post.picture);
+
       let input = event.target;
 
       if (input.files) {
@@ -373,18 +442,18 @@ export default {
         reader.readAsDataURL(input.files[0]);
       }
     },
-    onFileSelectedModify(post) {
-      post.picture = this.$refs.picture.files[0];
-      console.log(this.file);
-      // let input = event.target;
+    onFileSelectedModify(event) {
+      this.newPicture = event.target.files[0];
 
-      // if (input.files) {
-      //   let reader = new FileReader();
-      //   reader.onload = (e) => {
-      //     document.getElementById("preview").src = e.target.result;
-      //   };
-      //   reader.readAsDataURL(input.files[0]);
-      // }
+      let input = event.target;
+
+      if (input.files) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById("previewModify").src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
     },
 
     formatDate: function (date) {
@@ -410,6 +479,18 @@ export default {
 }
 .logo__img {
   width: 500px;
+}
+
+.uploadPicture {
+  background-color: #ffd7d7;
+  color: #fd2d01;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.uploadPicture__icon {
+  margin-right: 10px;
 }
 .card__post--img {
   display: flex;
@@ -445,6 +526,23 @@ export default {
   height: 300px;
   width: 100%;
   object-fit: cover;
+}
+
+.post__img--big {
+  font-size: 1.2em;
+  position: fixed;
+  top: 20%;
+  left: 37%;
+  z-index: 99999;
+  box-shadow: 3px 3px 10px 2px rgba(0, 0, 0, 0.2);
+}
+
+.divBigImage {
+  width: 100vw;
+  position: relative;
+  left: 0;
+  height: 100vh;
+  background-color: black;
 }
 .card__post--title {
   display: flex;

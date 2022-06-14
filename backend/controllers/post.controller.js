@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const fs = require("fs");
 
 const getPosts = async (req, res) => {
   const posts = await prisma.post.findMany({
@@ -84,16 +85,29 @@ const createPost = async (req, res) => {
 const updatePost = async (req, res) => {
   const { id } = req.params;
   // const { title, content } = req.body;
-  console.log(req.body.picture);
+  console.log(req.file);
 
   const data = {
     title: req.body.title,
     content: req.body.content,
   };
-  if (req.body.picture) {
+
+  if (req.file) {
     data.picture = `${req.protocol}://${req.get("host")}/images/${
-      req.body.picture
+      req.file.filename
     }`;
+    const findPost = await prisma.post.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+    const filename = findPost.picture.split("/images/")[1];
+    fs.unlink(`images/${filename}`, (error) => {
+      if (error) console.log(error);
+      else {
+        console.log("Le fichier image a été supprimé");
+      }
+    });
   } else {
     data.picture = "";
   }
