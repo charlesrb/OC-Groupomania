@@ -58,6 +58,7 @@
           placeholder="Confirmez votre nouveau mot de passe"
         />
       </div>
+      <div id="alert__message">{{ errMessage }}</div>
       <!-- <div v-if="mode == 'editing'" class="form-row">
         <input
           v-model="user.password"
@@ -190,18 +191,22 @@ export default {
       user: {},
       file: "",
       newPicture: "",
+      errMessage: "",
     };
   },
 
   methods: {
     SwitchToEditingProfile: function () {
       this.mode = "editing";
+      this.errMessage = "";
     },
     SwitchToDisplayingProfile: function () {
       this.mode = "display";
+      this.errMessage = "";
     },
     SwitchToModifyPassword: function () {
       this.mode = "modify_password";
+      this.errMessage = "";
     },
 
     logout: function () {
@@ -226,13 +231,16 @@ export default {
         });
     },
     modifyPassword: function () {
-      if (this.user.newPassword == this.user.newPasswordConfirm) {
+      const regexPassword = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,32})/;
+      if (
+        this.user.newPassword == this.user.newPasswordConfirm &&
+        regexPassword.test(this.user.newPassword)
+      ) {
         const userId = localStorage.getItem("userId");
         let data = {
           password: this.user.password,
           newPassword: this.user.newPassword,
         };
-        console.log(this.user.newPassword);
         try {
           instance
             .put(`/modifypassword/${userId}`, data, config)
@@ -241,30 +249,21 @@ export default {
             })
             .catch((error) => {
               error;
+
               if (error.response.status) {
-                document
-                  .getElementById("oldPassword")
-                  .insertAdjacentHTML(
-                    "afterend",
-                    "<span style='color:red; font-weight:700;'>Votre mot de passe n'est pas correct</span>"
-                  );
+                this.errMessage = "Votre mot de passe n'est pas correct";
               }
             });
         } catch {
           console.log("blabla");
         }
       } else {
-        document
-          .getElementById("passwordConfirm")
-          .insertAdjacentHTML(
-            "afterend",
-            "<span style='color:red; font-weight:700;'>Vos deux mots de passe doivent être identiques</span>"
-          );
+        this.errMessage =
+          "Vos deux mots de passe doivent être identiques et doivent être composé entre 8 et 32 caractères + 1 minuscule min + 1 maj min + 1 caractère spécial";
       }
     },
 
     disabledUser: function () {
-      const self = this;
       const userId = localStorage.getItem("userId");
       instance
         .put(`/disable/${userId}`, { disabled: true })
@@ -308,7 +307,10 @@ export default {
   border-radius: 10px;
   cursor: pointer;
 }
-
+#alert__message {
+  font-weight: 700;
+  color: red;
+}
 .uploadPicture__icon {
   margin-right: 10px;
 }
