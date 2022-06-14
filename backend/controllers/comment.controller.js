@@ -64,4 +64,19 @@ const deleteComment = async (req, res) => {
   res.json(result);
 };
 
-module.exports = { getComments, createComment, deleteComment };
+const modifyComment = async (req, res) => {
+  const data = {
+    content: req.body.content,
+  };
+  console.log(data);
+  const { id } = req.params;
+  const result = await prisma.comment.update({
+    where: {
+      id: parseInt(id),
+    },
+    data,
+  });
+  res.json(result);
+};
+
+module.exports = { getComments, createComment, deleteComment, modifyComment };

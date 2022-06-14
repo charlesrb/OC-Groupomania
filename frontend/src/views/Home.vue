@@ -115,13 +115,19 @@
             placeholder="Contenu du post"
           ></textarea>
         </div>
+        <!-- thumbnail image wrapped in a link -->
+        <a :href="'#' + post.id">
+          <img class="post__img" :src="post.picture" v-if="post.picture" />
+        </a>
 
-        <img
-          class="post__img"
-          :src="post.picture"
-          v-if="post.picture && mode == 'display' && showImage"
-          @click="toggleImage(post)"
-        />
+        <!-- lightbox container hidden with CSS -->
+        <a href="#" class="lightbox" :id="post.id">
+          <span
+            :style="{ backgroundImage: 'url(' + post.picture + ')' }"
+            v-if="post.picture"
+          ></span>
+        </a>
+
         <!-- <div
           class="divBigImage"
           v-if="
@@ -132,17 +138,7 @@
           "
           @click="toggleImage(post)"
         > -->
-        <img
-          class="post__img--big"
-          :src="post.picture"
-          v-if="
-            post.picture &&
-            mode == 'display' &&
-            !showImage &&
-            postBigImage == post.id
-          "
-          @click="toggleImage(post)"
-        />
+
         <!-- </div> -->
 
         <div class="form-row" v-if="mode == 'modify' && post_modify == post.id">
@@ -240,6 +236,17 @@
                     type="textarea"
                     placeholder="Contenu du post"
                   ></textarea>
+                </div>
+                <div
+                  class="form-row"
+                  v-if="mode == 'modify' && comment_modify == comment.id"
+                >
+                  <button
+                    @click="modifyComment(comment)"
+                    class="button__comment"
+                  >
+                    Modifier
+                  </button>
                 </div>
               </div>
             </div>
@@ -360,7 +367,12 @@ export default {
       this.showImage = !this.showImage;
       this.postBigImage = post.id;
     },
-
+    modifyComment: function (comment) {
+      instanceComment
+        .put(`/${comment.id}`, { content: comment.content }, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
     modifyPost: function (post) {
       let formData = new FormData();
       formData.append("title", post.title);
@@ -616,6 +628,7 @@ export default {
   width: 25%;
   padding: 16px;
   transition: 0.4s background-color;
+  cursor: pointer;
 }
 
 .form-row__input--textarea {
@@ -686,5 +699,43 @@ export default {
   gap: 10px;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+/** LIGHTBOX MARKUP **/
+
+.lightbox {
+  /* Default to hidden */
+  display: none;
+
+  /* Overlay entire screen */
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  /* A bit of padding around image */
+  padding: 1em;
+
+  /* Translucent background */
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Unhide the lightbox when it's the target */
+.lightbox:target {
+  display: block;
+}
+
+.lightbox span {
+  /* Full width and height */
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  /* Size and position background image */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 </style>
