@@ -116,17 +116,28 @@
           ></textarea>
         </div>
         <!-- thumbnail image wrapped in a link -->
-        <a :href="'#' + post.id">
-          <img class="post__img" :src="post.picture" v-if="post.picture" />
-        </a>
+        <!-- <a :href="'#' + post.id"> -->
+        <img
+          class="post__img"
+          :src="post.picture"
+          v-if="post.picture && showImage"
+          @click="toggleImage(post)"
+        />
+        <!-- </a> -->
 
         <!-- lightbox container hidden with CSS -->
-        <a href="#" class="lightbox" :id="post.id">
+        <!-- <a href="#" class="lightbox" :id="post.id"> -->
+        <div
+          class="lightbox"
+          v-if="post.picture && !showImage && postBigImage == post.id"
+        >
           <span
             :style="{ backgroundImage: 'url(' + post.picture + ')' }"
-            v-if="post.picture"
-          ></span>
-        </a>
+            @click="toggleImage(post)"
+            ><i class="fa-solid fa-circle-xmark close-lightbox"></i>fermer</span
+          >
+        </div>
+        <!-- </a> -->
 
         <!-- <div
           class="divBigImage"
@@ -538,24 +549,9 @@ export default {
   height: 300px;
   width: 100%;
   object-fit: cover;
+  cursor: pointer;
 }
 
-.post__img--big {
-  font-size: 1.2em;
-  position: fixed;
-  top: 20%;
-  left: 37%;
-  z-index: 99999;
-  box-shadow: 3px 3px 10px 2px rgba(0, 0, 0, 0.2);
-}
-
-.divBigImage {
-  width: 100vw;
-  position: relative;
-  left: 0;
-  height: 100vh;
-  background-color: black;
-}
 .card__post--title {
   display: flex;
   flex-direction: column;
@@ -701,41 +697,37 @@ export default {
   margin-bottom: 20px;
 }
 
-/** LIGHTBOX MARKUP **/
-
 .lightbox {
-  /* Default to hidden */
-  display: none;
-
-  /* Overlay entire screen */
   position: fixed;
   z-index: 999;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-
-  /* A bit of padding around image */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
   padding: 1em;
-
-  /* Translucent background */
   background: rgba(0, 0, 0, 0.8);
 }
 
-/* Unhide the lightbox when it's the target */
-.lightbox:target {
-  display: block;
-}
-
 .lightbox span {
-  /* Full width and height */
-  display: block;
-  width: 100%;
-  height: 100%;
-
-  /* Size and position background image */
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  cursor: pointer;
+  width: 75%;
+  height: 75%;
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
+  color: white;
+}
+
+.close-lightbox {
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
 }
 </style>
