@@ -5,7 +5,6 @@ const postRoutes = require("./routes/post.routes");
 const commentRoutes = require("./routes/comment.routes");
 const likeRoutes = require("./routes/like.routes");
 const app = express();
-const port = process.env.PORT;
 
 app.use(express.json());
 
