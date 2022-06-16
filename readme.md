@@ -47,7 +47,3 @@ Si nécessaire, vous trouverez la structure de la base de données à la racine 
     $ npm run serve
 ```
 
-
-admin
-AdminGroupo86!
-SalarieGroupo86!
