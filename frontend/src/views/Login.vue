@@ -6,7 +6,6 @@
     <div class="card">
       <h1 class="card__title" v-if="mode == 'login'">Connexion</h1>
       <h1 class="card__title" v-else>Inscription</h1>
-
       <p class="card__subtitle" v-if="mode == 'login'">
         Tu n'as pas encore de compte ?
         <span class="card__action" @click="SwitchToCreateAccount()"
@@ -17,6 +16,7 @@
         Tu as déjà un compte ?
         <span class="card__action" @click="SwitchToLogin()">Se connecter</span>
       </p>
+      <!-- Formulaires de connexion et d'inscription-->
       <div class="form-row">
         <input
           v-model="user.email"
@@ -47,13 +47,8 @@
           placeholder="Mot de passe"
         />
       </div>
+      <!-- Div d'affichage du message d'erreur -->
       <div id="alert__message">{{ errMessage }}</div>
-      <!-- <div class="form-row" v-if="mode == 'login'">
-      Adresse mail et/ou mot de passe invalide
-    </div>
-    <div class="form-row" v-if="mode == 'create'">
-      Adresse mail déjà utilisée
-    </div> -->
       <div class="form-row">
         <button
           @click="login()"
@@ -63,6 +58,7 @@
         >
           <span>Connexion</span>
         </button>
+        <!-- Bouton activé uniquement si les champs sont remplis -->
         <button
           @click="createAccount()"
           class="button"
@@ -78,7 +74,6 @@
 
 <script>
 /* eslint-disable */
-import { mapState } from "vuex";
 import axios from "axios";
 import store from "@/store";
 
@@ -109,6 +104,7 @@ export default {
     }
   },
   computed: {
+    // Vérification que les champs du formulaire ne sont pas vides
     validatedFields: function () {
       if (this.mode == "create") {
         if (
@@ -139,9 +135,11 @@ export default {
       this.mode = "login";
       this.errMessage = "";
     },
+
     login: function () {
       const user = { ...this.user };
       document.getElementById("alert__message").innerHTML = "";
+      // Connexion à l'API pour login
       instanceUser
         .post("/login", user)
         .then((data) => {
@@ -150,7 +148,6 @@ export default {
               "Votre compte est désactivé, veuillez contacter l'administrateur";
           } else {
             store.state.isLogged = true;
-            console.log(data);
             localStorage.setItem("token", data.data.token);
             localStorage.setItem("userId", data.data.userId);
             localStorage.setItem("isAdmin", data.data.isAdmin);
@@ -169,12 +166,11 @@ export default {
     },
     createAccount: function () {
       const user = { ...this.user };
-      console.log(user);
-      /* nos regex */
+      // Regex pour vérification des champs du formulaire
       const regexName = /^[a-zéèçàêïü]{2,50}(-| )?([a-zéèçà]{2,50})?$/gim;
       const regexEmail = /^[\w-.]{2,32}@([\w-]+\.)+[\w-]{2,4}$/g;
       const regexPassword = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,32})/;
-      /* nos véfifications */
+      // Test des Regex
       if (!regexName.test(user.surname && user.name)) {
         this.errMessage = "Name Err! => format nom et/ou prénom incorrect";
         return;
@@ -189,7 +185,7 @@ export default {
           "Password Err! => entre 8 et 32 caractères + 1 minuscule min + 1 maj min + 1 caractère spécial";
         return;
       }
-
+      // Connexion à l'API pour signup
       instanceUser
         .post("/signup", user)
         .then((data) => {
@@ -198,7 +194,6 @@ export default {
               .post("/login", user)
               .then((data) => {
                 store.state.isLogged = true;
-                console.log(data);
                 localStorage.setItem("token", data.data.token);
                 localStorage.setItem("userId", data.data.userId);
                 localStorage.setItem("isAdmin", data.data.isAdmin);
@@ -249,7 +244,6 @@ export default {
   min-width: 100px;
   color: black;
 }
-
 #alert__message {
   font-weight: 700;
   color: red;

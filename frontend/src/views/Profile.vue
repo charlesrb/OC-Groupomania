@@ -59,15 +59,6 @@
         />
       </div>
       <div id="alert__message">{{ errMessage }}</div>
-      <!-- <div v-if="mode == 'editing'" class="form-row">
-        <input
-          v-model="user.password"
-          class="form-row__input"
-          type="password"
-          placeholder="Mot de passe"
-        />
-      </div> -->
-
       <h2 v-if="mode == 'editing'">Biographie :</h2>
       <div v-if="mode == 'editing'" class="form-row">
         <textarea
@@ -171,11 +162,12 @@ export default {
   components: { Nav },
 
   beforeCreate() {
-    /* on récupère le profil de l'user avant la création de la page */
+    // Si l'état "isLogged" est false dans le store, on renvoie vers la page d'inscription / login
     if (!this.$store.state.isLogged) {
       this.$router.push("/");
       return;
     } else {
+      // Sinon, on récupère l'id de l'utilisateur dans le local storage puis on récupère les informations dans la base
       const userId = localStorage.getItem("userId");
       instance
         .get(`/${userId}`)
@@ -218,7 +210,6 @@ export default {
       let formData = new FormData();
       formData.append("surname", this.user.surname);
       formData.append("name", this.user.name);
-      // formData.append("password", this.user.password);
       formData.append("bio", this.user.bio);
       formData.append("password", this.user.password);
       formData.append("picture", this.newPicture);
@@ -244,7 +235,7 @@ export default {
         try {
           instance
             .put(`/modifypassword/${userId}`, data, config)
-            .then((data) => {
+            .then(() => {
               location.reload();
             })
             .catch((error) => {
@@ -255,7 +246,7 @@ export default {
               }
             });
         } catch {
-          console.log("blabla");
+          this.errMessage = "Erreur de connexion avec l'API";
         }
       } else {
         this.errMessage =
@@ -271,7 +262,6 @@ export default {
           store.state.isLogged = false;
           this.$router.push("/");
           localStorage.clear();
-          console.log("user déconnecté");
         })
         .catch((error) => {
           error;

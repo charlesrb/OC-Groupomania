@@ -23,6 +23,18 @@ body {
   min-height: 100vh;
   padding: 32px;
 }
+
+@media screen and (max-width: 768px) {
+  body {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .homecard {
+    border-radius: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
 img {
   max-width: 100%;
   border-radius: 8px;
@@ -40,6 +52,12 @@ img {
   background: white;
   border-radius: 16px;
   padding: 32px;
+}
+@media screen and (max-width: 768px) {
+  .homecard {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 }
 .card__title {
   text-align: center;

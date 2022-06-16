@@ -7,6 +7,9 @@
     <div class="homecard">
       <h1 class="card__title">Fil d'actualités</h1>
       <br />
+      <!-- *** -->
+      <!-- Formulaire de publication d'un nouveau post -->
+      <!-- *** -->
       <h3>Publier un nouveau post</h3>
       <div class="form-row">
         <input
@@ -16,7 +19,6 @@
           placeholder="Titre du post"
         />
       </div>
-
       <div class="form-row">
         <textarea
           v-model="post.content"
@@ -41,6 +43,9 @@
           @change="onFileSelected"
         />
       </div>
+      <!-- *** -->
+      <!-- Div de preview de l'image uploadée -->
+      <!-- *** -->
       <div class="form-row">
         <img
           id="preview"
@@ -52,13 +57,13 @@
       <div class="form-row">
         <button @click="createPost()" class="button">Publier</button>
       </div>
-
+      <!-- *** -->
+      <!-- Boucle for pour afficher les posts par ordre antéchronologique -->
+      <!-- *** -->
       <div class="card__post" v-for="post in posts" :key="post.id">
         <div class="card__post--img">
           <div class="card__post--detail">
             <img :src="post.author.picture" />
-            <!-- <img :src="post.author.picture" /> -->
-
             <div class="card__post--title">
               <h2 v-if="mode == 'display' || post_modify != post.id">
                 {{ post.title }}
@@ -81,6 +86,9 @@
               </p>
             </div>
           </div>
+          <!-- *** -->
+          <!-- Edition / Suppression des posts -->
+          <!-- *** -->
           <div class="admin__button">
             <div class="card__post--delete" v-if="post.author.id == userId">
               <span @click="SwitchToModifyPost(post)" v-if="mode == 'display'">
@@ -103,10 +111,12 @@
             </div>
           </div>
         </div>
-
         <p v-if="mode == 'display' || post_modify != post.id">
           {{ post.content }}
         </p>
+        <!-- *** -->
+        <!-- Modification d'un post -->
+        <!-- *** -->
         <div class="form-row" v-if="mode == 'modify' && post_modify == post.id">
           <textarea
             v-model="post.content"
@@ -115,18 +125,16 @@
             placeholder="Contenu du post"
           ></textarea>
         </div>
-        <!-- thumbnail image wrapped in a link -->
-        <!-- <a :href="'#' + post.id"> -->
+        <!-- *** -->
+        <!-- Lightbox pour afficher image entièrement -->
+        <!-- *** -->
         <img
           class="post__img"
           :src="post.picture"
           v-if="post.picture && showImage"
           @click="toggleImage(post)"
         />
-        <!-- </a> -->
 
-        <!-- lightbox container hidden with CSS -->
-        <!-- <a href="#" class="lightbox" :id="post.id"> -->
         <div
           class="lightbox"
           v-if="post.picture && !showImage && postBigImage == post.id"
@@ -137,20 +145,6 @@
             ><i class="fa-solid fa-circle-xmark close-lightbox"></i>fermer</span
           >
         </div>
-        <!-- </a> -->
-
-        <!-- <div
-          class="divBigImage"
-          v-if="
-            post.picture &&
-            mode == 'display' &&
-            !showImage &&
-            postBigImage == post.id
-          "
-          @click="toggleImage(post)"
-        > -->
-
-        <!-- </div> -->
 
         <div class="form-row" v-if="mode == 'modify' && post_modify == post.id">
           <label for="newPicture" class="uploadPicture"
@@ -180,6 +174,9 @@
             Modifier
           </button>
         </div>
+        <!-- *** -->
+        <!-- Like / Dislike -->
+        <!-- *** -->
         <div class="card__post--like">
           <span @click="createLike(post)"
             ><i
@@ -190,6 +187,9 @@
           >
         </div>
         <br />
+        <!-- *** -->
+        <!-- Boucle for pour afficher les commentaires par post -->
+        <!-- *** -->
         <div class="comments">
           <h4>Commentaires</h4>
           <div v-for="comment in comments" :key="comment.id">
@@ -286,6 +286,8 @@ import Nav from "../components/nav.vue";
 import axios from "axios";
 /* eslint-disable */
 
+// Création des variables pour la connexion à l'API
+
 const config = {
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 };
@@ -333,7 +335,6 @@ export default {
       newPicture: "",
       showImage: true,
       postBigImage: "",
-      // totalLike: "",
     };
   },
   beforeCreate() {
@@ -373,27 +374,9 @@ export default {
     SwitchToDisplayComment: function (comment) {
       this.mode = "display";
     },
-
     toggleImage: function (post) {
       this.showImage = !this.showImage;
       this.postBigImage = post.id;
-    },
-    modifyComment: function (comment) {
-      instanceComment
-        .put(`/${comment.id}`, { content: comment.content }, config)
-        .then(() => location.reload())
-        .catch((error) => error);
-    },
-    modifyPost: function (post) {
-      let formData = new FormData();
-      formData.append("title", post.title);
-      formData.append("content", post.content);
-      formData.append("picture", this.newPicture);
-
-      instancePost
-        .put(`/${post.id}`, formData, config)
-        .then(() => location.reload())
-        .catch((error) => error);
     },
     createPost: function () {
       if (this.$store.state.isLogged == false) {
@@ -411,6 +394,49 @@ export default {
           .catch((error) => error);
       }
     },
+    modifyPost: function (post) {
+      let formData = new FormData();
+      formData.append("title", post.title);
+      formData.append("content", post.content);
+      formData.append("picture", this.newPicture);
+
+      instancePost
+        .put(`/${post.id}`, formData, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
+    deletePost: function (postId) {
+      instancePost
+        .delete(`/${postId}`, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
+    createComment: function (post) {
+      this.comment.postId = post.id;
+      instanceComment
+        .post("/", this.comment, config)
+        .then((res) => location.reload())
+        .catch((error) => error);
+    },
+    modifyComment: function (comment) {
+      instanceComment
+        .put(`/${comment.id}`, { content: comment.content }, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
+    deleteComment: function (commentId) {
+      instanceComment
+        .delete(`/${commentId}`, config)
+        .then(() => location.reload())
+        .catch((error) => error);
+    },
+    createLike: function (post) {
+      this.like.postId = post.id;
+      instanceLike
+        .post("/", this.like, config)
+        .then((res) => location.reload())
+        .catch((error) => error);
+    },
     isLiked: function (post) {
       const postLikedAuthor = post.likes.filter(
         (like) => like.authorId == localStorage.getItem("userId")
@@ -421,39 +447,8 @@ export default {
         return true;
       }
     },
-    createComment: function (post) {
-      this.comment.postId = post.id;
-      instanceComment
-        .post("/", this.comment, config)
-        .then((res) => location.reload())
-        .catch((error) => error);
-    },
-
-    createLike: function (post) {
-      this.like.postId = post.id;
-      instanceLike
-        .post("/", this.like, config)
-        .then((res) => location.reload())
-        .catch((error) => error);
-    },
-
-    deletePost: function (postId) {
-      instancePost
-        .delete(`/${postId}`, config)
-        .then(() => location.reload())
-        .catch((error) => error);
-    },
-
-    deleteComment: function (commentId) {
-      instanceComment
-        .delete(`/${commentId}`, config)
-        .then(() => location.reload())
-        .catch((error) => error);
-    },
-
     onFileSelected(event) {
       this.post.picture = this.$refs.picture.files[0];
-      console.log(this.post.picture);
 
       let input = event.target;
 
@@ -478,7 +473,6 @@ export default {
         reader.readAsDataURL(input.files[0]);
       }
     },
-
     formatDate: function (date) {
       const options = { hour: "numeric", minute: "numeric" };
       const newDateMonth = new Date(date.createdAt).toLocaleDateString();
@@ -486,7 +480,6 @@ export default {
         "fr-FR",
         options
       );
-
       return `${newDateMonth} à ${newDateHour}`;
     },
   },
@@ -503,7 +496,6 @@ export default {
 .logo__img {
   width: 500px;
 }
-
 .uploadPicture {
   background-color: #ffd7d7;
   color: #fd2d01;
@@ -511,7 +503,6 @@ export default {
   border-radius: 10px;
   cursor: pointer;
 }
-
 .uploadPicture__icon {
   margin-right: 10px;
 }
@@ -626,7 +617,11 @@ export default {
   transition: 0.4s background-color;
   cursor: pointer;
 }
-
+@media screen and (max-width: 768px) {
+  .button__comment {
+    width: 30%;
+  }
+}
 .form-row__input--textarea {
   padding: 8px;
   border: none;
@@ -661,7 +656,6 @@ export default {
 .form-row__input--textarea::placeholder {
   color: #aaaaaa;
 }
-
 .card__post {
   max-width: 100%;
 
@@ -672,21 +666,24 @@ export default {
   padding: 32px;
 }
 
+@media screen and (max-width: 768px) {
+  .card__post {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
 .card__post--like {
   display: flex;
   flex-direction: row;
   gap: 20px;
   justify-content: flex-end;
 }
-
 .card__post--like span:hover {
   cursor: pointer;
 }
-
 .card__comment--delete span:hover {
   cursor: pointer;
 }
-
 .card__post--comments {
   display: flex;
   flex-direction: row;
@@ -696,7 +693,6 @@ export default {
   margin-top: 20px;
   margin-bottom: 20px;
 }
-
 .lightbox {
   position: fixed;
   z-index: 999;
@@ -711,7 +707,6 @@ export default {
   padding: 1em;
   background: rgba(0, 0, 0, 0.8);
 }
-
 .lightbox span {
   display: flex;
   justify-content: flex-end;
@@ -724,7 +719,6 @@ export default {
   background-size: contain;
   color: white;
 }
-
 .close-lightbox {
   color: white;
   cursor: pointer;

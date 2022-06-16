@@ -153,7 +153,11 @@ export default {
   justify-content: space-between;
   width: 100%;
 }
-
+@media screen and (max-width: 768px) {
+  .card__post--title {
+    flex-direction: column;
+  }
+}
 .card__post--title div {
   display: flex;
   flex-direction: column;
@@ -166,5 +170,12 @@ export default {
   margin-bottom: 10px;
   color: white;
   text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+  .title-membres {
+    font-size: 26px;
+    padding-bottom: 50px;
+  }
 }
 </style>
