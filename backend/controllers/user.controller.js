@@ -18,7 +18,7 @@ const signup = async (req, res, next) => {
         password: hashedPassword,
         name,
         surname,
-        picture: "http://localhost:8000/images/profil1653921599915.jpg",
+        picture: "http://localhost:8000/images/profil-defaut.jpg",
         bio,
       },
     });
